@@ -5,5 +5,5 @@
 
 ## TryHackMe Writeups
 
-* [Minion](tryhackme-writeups/writeups.md)
+* [Minion](tryhackme-writeups/minion.md)
 * [Git test](tryhackme-writeups/git-test.md)
