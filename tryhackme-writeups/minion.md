@@ -5,13 +5,23 @@ coverY: 0
 
 # Minion
 
-## Setup
+## 0. Setup
 
-* Add minion.thm to /etc/hosts: `sudo nano /etc/hosts` Add in `<TARGETIP> minion.thm` as a new line in the file
+Add minion.thm to /etc/hosts:&#x20;
+
+```bash
+sudo nano /etc/hosts
+```
+
+Put `<TARGETIP> minion.thm` as a new line in the file
 
 ![](<../.gitbook/assets/Pasted image 20220923065821.png>)
 
-* Optional: I like to save the target IP as a variable called TGT which can be used in commands and save having to type it out each time. Also makes copying commands from my notes a lot easier
+Optional setup:&#x20;
+
+I like to save the target IP as a variable called TGT which can be used in commands and save having to type it out each time. Also makes copying commands from my notes a lot easier
+
+``
 
 ![](<../.gitbook/assets/Pasted image 20220923065906.png>)
 
@@ -21,15 +31,22 @@ coverY: 0
 
 Use nmap tool to start to built up a picture of what is running on the machine: Note: $TGT is the target machine IP as described in the setup section
 
-`sudo nmap -A -T4 -p- $TGT`
+```bash
+sudo nmap -A -T4 -p- $TGT
+```
 
-Options explained: -A runs Version detection as well as default set of scripts -T4 is the timing template to use (0: slowest, 5: quickest) -p- scan all ports
+Options explained: -A runs Version detection as well as default set of scripts, -T4 is the timing template to use (0: slowest, 5: quickest), -p- scan all ports
 
 Nmap results:&#x20;
 
 <figure><img src="../.gitbook/assets/Pasted image 20220923070212.png" alt=""><figcaption><p>nmap results</p></figcaption></figure>
 
-Points of interest from results: Web service running on port 80: Apache 2.4.41 There is a robots.txt file WordPress V 6.0.2 /wp-admin/ (WordPress admin area)
+Points of interest from nmap results:&#x20;
+
+* Web service running on port 80: Apache 2.4.41
+* There is a robots.txt file&#x20;
+* WordPress V 6.0.2&#x20;
+* /wp-admin/ (WordPress admin area)
 
 ## 1.2 View website
 
@@ -45,7 +62,7 @@ Following the link to the Flag 1 post there is a mention of the author "minion"&
 
 <figure><img src="../.gitbook/assets/Pasted image 20220923070049.png" alt=""><figcaption></figcaption></figure>
 
-There is also a comment section at the bottom of the page. I made note of this incase it could be used in the exploitation phase for possible XSS. http://minion.thm/2022/09/18/flag1/
+There is also a comment section at the bottom of the page. I made note of this incase it could be used in the exploitation phase for possible XSS. (http://minion.thm/2022/09/18/flag1/)
 
 I did not any more pages of notable importance browsing through the site so I chose to move on at this point.
 
@@ -125,25 +142,29 @@ I decided to use the 404 file as it can reliably be called upon by browsing to p
 
 I inserted the well known PHP shell from pentestmonkey which can be found at: https://github.com/pentestmonkey/php-reverse-shell making sure to change the ip and port number to match my workstation and the netcat listener I set up.&#x20;
 
-!\[\[Pasted image 20220923071246.png]]&#x20;
+```bash
+nc -nvlp 4444
+```
 
-!\[\[Pasted image 20220923071319.png]]
+![](<../.gitbook/assets/Pasted image 20220923071246.png>)
+
+![](<../.gitbook/assets/Pasted image 20220923071319.png>)
 
 Once the PHP is pasted in and the port and IP values are set appropriately click the update file button underneath to save the changes&#x20;
 
-!\[\[Pasted image 20220923071425.png]]
+![](<../.gitbook/assets/Pasted image 20220923071425.png>)
 
 Now that the PHP shell code exists in the TWENTY TWENTY-ONE theme it needs to be activated which can be done through the dashboard.
 
-!\[\[Pasted image 20220923071549.png]]
+![](<../.gitbook/assets/Pasted image 20220923071549.png>)
 
-&#x20;!\[\[Pasted image 20220923071607.png]]
+&#x20;![](<../.gitbook/assets/Pasted image 20220923071607.png>)
 
 Browsing to a URL that doesn't exist (e.ghttp://minion.thm/NotAPagelllasdbbb) will return the desired 404 response code leading to the themes 404.php being loaded
 
 If e payload is executed properly this will cause the page to "hang" as we now have a web shell established as www-data
 
-&#x20;!\[\[Pasted image 20220923071642.png]]
+![](<../.gitbook/assets/Pasted image 20220923071642.png>)as
 
 ### 3.3 Enumeration with established shell
 
@@ -151,14 +172,14 @@ It is not neccessary but it makes life a lot easier if you stabalise your shell:
 
 #### Stabalise the shell
 
-```
+```bash
 python3 -c 'import pty; pty.spawn("/bin/bash")'
 export TERM=xterm
 ```
 
 background the shell using `Ctrl + Z`
 
-```
+```bash
 stty raw -echo; fg
 ```
 
@@ -170,11 +191,11 @@ With the shell stabalised I started to gather information:
 
 /etc/passwd&#x20;
 
-!\[\[Pasted image 20220923074813.png]]
+<figure><img src="../.gitbook/assets/Pasted image 20220921071813.png" alt=""><figcaption></figcaption></figure>
 
 ls /home&#x20;
 
-!\[\[Pasted image 20220923074905.png]]
+![](<../.gitbook/assets/Pasted image 20220923074905.png>)
 
 This shows two users of interest: Gru and Minion.
 
@@ -184,7 +205,7 @@ The available flag is in /srv/www/wordpress alongside other files from the minio
 
 Looking into the files gives database information in wp-config.php One line that stands out is define( 'DB\_PASSWORD', 'SuperDuperStrongPasswordThatIsLong' );
 
-!\[\[Pasted image 20220923075130.png]]
+<figure><img src="../.gitbook/assets/Pasted image 20220923075130.png" alt=""><figcaption><p>wp-config.php</p></figcaption></figure>
 
 ## 4 Priv esc
 
@@ -195,15 +216,15 @@ su minion
 Password: yellow
 ```
 
-!\[\[Pasted image 20220923075231.png]]
+![](<../.gitbook/assets/Pasted image 20220923075231.png>)
 
 SUCCESS as well as access to a flag there is also a file called "notes"
 
-!\[\[Pasted image 20220923075255.png]]
+![](<../.gitbook/assets/Pasted image 20220923075255.png>)
 
 I checked if minion had any sudo rights but no luck here&#x20;
 
-!\[\[Pasted image 20220923075325.png]]
+![](<../.gitbook/assets/Pasted image 20220923075325.png>)
 
 So using the info from "notes" it follows to move across to the other user Gru. Trying the database password from wp-config.php:
 
@@ -212,11 +233,11 @@ su gru
 Password: SuperDuperStrongPasswordThatIsLong
 ```
 
-!\[\[Pasted image 20220923075422.png]]
+![](<../.gitbook/assets/Pasted image 20220923075422.png>)
 
 gives the next challenge flag in Gru's home folder. Checking for sudo rights this time returns the ability to run gawk as sudo.
 
-!\[\[Pasted image 20220923075457.png]]
+![](<../.gitbook/assets/Pasted image 20220923075457.png>)
 
 Checking GTFO bins https://gtfobins.github.io/gtfobins/gawk/#sudo shows us a command that can be used to elevate to privileged access:
 
@@ -224,8 +245,10 @@ Checking GTFO bins https://gtfobins.github.io/gtfobins/gawk/#sudo shows us a com
 sudo gawk 'BEGIN {system("/bin/sh")}'
 ```
 
-!\[\[Pasted image 20220923075604.png]]&#x20;
+![](<../.gitbook/assets/Pasted image 20220923075604.png>)&#x20;
 
 Now that we have a root shell we can find the rooms final flag in the /root folder.
+
+
 
 Thanks for reading my writeup of the Minion room.
