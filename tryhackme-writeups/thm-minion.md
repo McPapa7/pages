@@ -3,17 +3,7 @@ cover: ../.gitbook/assets/minion cover.png
 coverY: 0
 ---
 
-# Minion
-
-## Hints and Steers
-
-<details>
-
-<summary>Hints and Steers !!WARNING SPOILERS!!</summary>
-
-A1: JavaScript
-
-</details>
+# THM - Minion
 
 ## 0. Setup
 
@@ -49,7 +39,7 @@ sudo nmap -A -T4 -p- $TGT
 
 Options explained: -A runs Version detection as well as default set of scripts, -T4 is the timing template to use (0: slowest, 5: quickest), -p- scan all ports
 
-Nmap results:&#x20;
+**Nmap results:**&#x20;
 
 <figure><img src="../.gitbook/assets/Pasted image 20220923070212.png" alt=""><figcaption><p>nmap results</p></figcaption></figure>
 
@@ -70,7 +60,7 @@ Loading up the website we are shown our first flag&#x20;
 
 From here I generally will browse the website as a user would (alongside viewing page sources and keeping our nmap scan results in mind) to get an idea of the websites functionality and purpose before using enumeration tools
 
-Following the link to the Flag 1 post there is a mention of the author "minion"&#x20;
+Following the link to the Flag 1 post there is a mention of the **author "minion"**&#x20;
 
 <figure><img src="../.gitbook/assets/Pasted image 20220923070049.png" alt=""><figcaption></figcaption></figure>
 
@@ -78,7 +68,7 @@ There is also a comment section at the bottom of the page. I made note of this i
 
 I did not any more pages of notable importance browsing through the site so I chose to move on at this point.
 
-Our nmap results showed from the robots.txt file that /wp-login/ is to be ignored by web crawlers. This is sometimes a clue for where to find sensitive information on websites so it is worth taking note as well as wordpress sites commonly using this as an admin area.
+Our nmap results showed from the **robots.txt** file that /wp-login/ is to be ignored by web crawlers. This is sometimes a clue for where to find sensitive information on websites so it is worth taking note as well as wordpress sites commonly using this as an admin area.
 
 robots.txt can be viewed in the browser or using commands such as curl and is often worth checking out.
 
@@ -88,7 +78,7 @@ From viewing robots.txt we can see the site appears to be running PHP as well as
 
 ![](<../.gitbook/assets/Pasted image 20220923205144.png>)
 
-We can view the disallowed page by navigating to it directly in the browser where we find we get redirected to a login page
+We can view the disallowed page by navigating to it directly in the browser where we find we get redirected to a **login page**.
 
 <figure><img src="../.gitbook/assets/Pasted image 20220921074117.png" alt=""><figcaption><p>login page</p></figcaption></figure>
 
@@ -102,11 +92,11 @@ To see how the page responds to input we can try credentials we do not think wil
 
 ![](<../.gitbook/assets/Pasted image 20220921122821.png>)
 
-Error shows no username "test" registered. This is a useful error message compared to a typical "user and/or password incorrect" seen on most site as we can identify if a username is valid without knowing the password.
+Error shows no username "test" registered. This is a **useful error message** compared to a typical "user and/or password incorrect" seen on most site as we can identify if a username is valid without knowing the password.
 
 We can try common usernames (root, admin) and also 'minion' (the author of the flag post)
 
-Entering Minion gives a different error message that the password is incorrect but confirms the username exists.
+Entering **minion** gives a different error message that the password is incorrect but confirms the username exists.
 
 ![](<../.gitbook/assets/Pasted image 20220923070812.png>)
 
@@ -124,7 +114,7 @@ wpscan --url http://minion.thm/wp-login.php --usernames minion --passwords /usr/
 
 ![](<../.gitbook/assets/Pasted image 20220921133836.png>)
 
-Password successfully found so we now have valid login credentials minion : yellow
+Password successfully found so we now have **valid login credentials** minion : yellow
 
 ## 3. Post Compromise Enumeration
 
@@ -144,15 +134,15 @@ As we know the site runs PHP (Wordpress sites almost always run PHP and robot.tx
 
 Originally I tried in the upload media section but .php extensions are not allowed and file signatures are checked as renaming the extension was still found to be invalid.
 
-From previous experience I have known there to be .php files in the theme files so I looked in here. The theme in use contained .html files, however other themes were available and browsing to TWENTY TWENTY-ONE theme found the desired .php extension files.
+From previous experience I have known there to be .php files in the theme files so I looked in here. The theme in use contained .html files, however other themes were available and browsing to **TWENTY TWENTY-ONE theme** found the desired .php extension files.
 
 ![](<../.gitbook/assets/Pasted image 20220923070956.png>)
 
 ![](<../.gitbook/assets/Pasted image 20220923071045.png>)
 
-I decided to use the 404 file as it can reliably be called upon by browsing to page that doesn't exist.
+I decided to use the 404.php file as it can reliably be called upon by browsing to page that doesn't exist.
 
-I inserted the well known PHP shell from pentestmonkey which can be found at: [https://github.com/pentestmonkey/php-reverse-shell](https://github.com/pentestmonkey/php-reverse-shell) making sure to change the ip and port number to match my workstation and the netcat listener I set up.&#x20;
+I inserted the well known **PHP shell** from pentestmonkey which can be found at: [https://github.com/pentestmonkey/php-reverse-shell](https://github.com/pentestmonkey/php-reverse-shell) making sure to change the ip and port number to match my workstation and the netcat listener I set up.&#x20;
 
 ```bash
 nc -nvlp 4444
@@ -174,13 +164,13 @@ Now that the PHP shell code exists in the TWENTY TWENTY-ONE theme it needs to be
 
 Browsing to a URL that doesn't exist (e.g http://minion.thm/NotAPagelllasdbbb) will return the desired 404 response code leading to the themes 404.php being loaded
 
-If e payload is executed properly this will cause the page to "hang" as we now have a web shell established as www-data
+If the payload is executed properly this will cause the page to "hang" as we now have a **web shell established** as www-data.
 
 ![](<../.gitbook/assets/Pasted image 20220923071642.png>)as
 
 ### 3.3 Enumeration with established shell
 
-It is not neccessary but it makes life a lot easier if you stabalise your shell:
+It is not necessary but it makes life a lot easier if you stabalise your shell:
 
 #### Stabalise the shell
 
@@ -201,21 +191,33 @@ If shell dies and cannot see typed stuff use command `reset`
 
 With the shell stabalised I started to gather information:
 
-/etc/passwd&#x20;
+`cat /etc/passwd`&#x20;
 
-<figure><img src="../.gitbook/assets/Pasted image 20220921071813.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/Pasted image 20220923074813.png" alt=""><figcaption><p>etc/passwd</p></figcaption></figure>
 
-ls /home&#x20;
+`ls /home`&#x20;
 
 ![](<../.gitbook/assets/Pasted image 20220923074905.png>)
 
-This shows two users of interest: Gru and Minion.
+This shows two users of interest: **Gru** and **Minion**.
 
-Looking back at the THM room we are in search of flags so I ran a find to check for accessible flags: find / -type f -name "flag\*" 2>/dev/null which didn't return any useful results so I used -iname to make the search case insensitive picking up the next challenge flag find / -type f -iname "flag\*" 2>/dev/null
+Looking back at the THM room we are in search of flags so I ran a find command to check for accessible flags:&#x20;
+
+```bash
+find / -type f -name "flag*" 2>/dev/null
+```
+
+which didn't return any useful results so I used -iname to make the search **case insensitive** picking up the next challenge flag&#x20;
+
+```bash
+find / -type f -iname "flag*" 2>/dev/null
+```
 
 The available flag is in /srv/www/wordpress alongside other files from the minion.thm site
 
 Looking into the files gives database information in wp-config.php One line that stands out is define( 'DB\_PASSWORD', 'SuperDuperStrongPasswordThatIsLong' );
+
+It is worth noting that a tool such as [linpeas ](https://github.com/carlospolop/PEASS-ng/tree/master/linPEAS)could be used to find this information as well.
 
 <figure><img src="../.gitbook/assets/Pasted image 20220923075130.png" alt=""><figcaption><p>wp-config.php</p></figcaption></figure>
 
@@ -230,7 +232,7 @@ Password: yellow
 
 ![](<../.gitbook/assets/Pasted image 20220923075231.png>)
 
-SUCCESS as well as access to a flag there is also a file called "notes"
+**SUCCESS** as well as access to **flag 3** there is also a file called "notes"
 
 ![](<../.gitbook/assets/Pasted image 20220923075255.png>)
 
@@ -247,7 +249,7 @@ Password: SuperDuperStrongPasswordThatIsLong
 
 ![](<../.gitbook/assets/Pasted image 20220923075422.png>)
 
-gives the next challenge flag in Gru's home folder. Checking for sudo rights this time returns the ability to run gawk as sudo.
+gives the next challenge **flag 4** in Gru's home folder. Checking for sudo rights this time returns the ability to run **gawk** as sudo.
 
 ![](<../.gitbook/assets/Pasted image 20220923075457.png>)
 

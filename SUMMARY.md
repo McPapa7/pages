@@ -4,4 +4,4 @@
 
 ## TryHackMe Writeups
 
-* [Minion](tryhackme-writeups/minion.md)
+* [THM - Minion](tryhackme-writeups/thm-minion.md)
