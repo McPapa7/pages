@@ -5,6 +5,16 @@ coverY: 0
 
 # Minion
 
+## Hints and Steers
+
+<details>
+
+<summary>Hints and Steers !!WARNING SPOILERS!!</summary>
+
+A1: JavaScript
+
+</details>
+
 ## 0. Setup
 
 Add minion.thm to /etc/hosts:&#x20;
@@ -30,14 +40,6 @@ I like to save the target IP as a variable called TGT which can be used in comma
 Use nmap tool to start to built up a picture of what is running on the machine: Note: $TGT is the target machine IP as described in the setup section
 
 \<html>
-
-<details>
-
-<summary>Q1: What is the best Language in the World?</summary>
-
-A1: JavaScript
-
-</details>
 
 
 
