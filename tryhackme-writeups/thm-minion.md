@@ -29,10 +29,6 @@ I like to save the target IP as a variable called TGT which can be used in comma
 
 Use nmap tool to start to built up a picture of what is running on the machine: Note: $TGT is the target machine IP as described in the setup section
 
-\<html>
-
-
-
 ```bash
 sudo nmap -A -T4 -p- $TGT
 ```
