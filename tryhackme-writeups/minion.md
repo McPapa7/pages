@@ -21,8 +21,6 @@ Optional setup:&#x20;
 
 I like to save the target IP as a variable called TGT which can be used in commands and save having to type it out each time. Also makes copying commands from my notes a lot easier
 
-``
-
 ![](<../.gitbook/assets/Pasted image 20220923065906.png>)
 
 ## 1. Recon and Enumeration
@@ -140,7 +138,7 @@ From previous experience I have known there to be .php files in the theme files 
 
 I decided to use the 404 file as it can reliably be called upon by browsing to page that doesn't exist.
 
-I inserted the well known PHP shell from pentestmonkey which can be found at: https://github.com/pentestmonkey/php-reverse-shell making sure to change the ip and port number to match my workstation and the netcat listener I set up.&#x20;
+I inserted the well known PHP shell from pentestmonkey which can be found at: [https://github.com/pentestmonkey/php-reverse-shell](https://github.com/pentestmonkey/php-reverse-shell) making sure to change the ip and port number to match my workstation and the netcat listener I set up.&#x20;
 
 ```bash
 nc -nvlp 4444
@@ -160,7 +158,7 @@ Now that the PHP shell code exists in the TWENTY TWENTY-ONE theme it needs to be
 
 &#x20;![](<../.gitbook/assets/Pasted image 20220923071607.png>)
 
-Browsing to a URL that doesn't exist (e.ghttp://minion.thm/NotAPagelllasdbbb) will return the desired 404 response code leading to the themes 404.php being loaded
+Browsing to a URL that doesn't exist (e.g http://minion.thm/NotAPagelllasdbbb) will return the desired 404 response code leading to the themes 404.php being loaded
 
 If e payload is executed properly this will cause the page to "hang" as we now have a web shell established as www-data
 
@@ -239,7 +237,7 @@ gives the next challenge flag in Gru's home folder. Checking for sudo rights thi
 
 ![](<../.gitbook/assets/Pasted image 20220923075457.png>)
 
-Checking GTFO bins https://gtfobins.github.io/gtfobins/gawk/#sudo shows us a command that can be used to elevate to privileged access:
+Checking GTFO bins [https://gtfobins.github.io/gtfobins/gawk/#sudo](https://gtfobins.github.io/gtfobins/gawk/#sudo) shows us a command that can be used to elevate to privileged access:
 
 ```
 sudo gawk 'BEGIN {system("/bin/sh")}'
