@@ -262,3 +262,17 @@ Now that we have a root shell we can find the rooms final flag in the /root fold
 
 
 Thanks for reading my writeup of the Minion room.
+
+
+
+## The TLDR
+
+* Scan machine and discover website
+* Flag 1 found
+* Brute force login for user "minion"
+* Edit 404.php theme page to create reverse shell
+* Flag 2 found in /srv/www/wordpress
+* Switch user to minion to find flag 3
+* Switch to Gru using DB password to find flag 4
+* Elevate to root shell using sudo gawk from GTFO bins
+* Final flag in /root
