@@ -162,7 +162,7 @@ Browsing to a URL that doesn't exist (e.g http://minion.thm/NotAPagelllasdbbb) w
 
 If the payload is executed properly this will cause the page to "hang" as we now have a **web shell established** as www-data.
 
-![](<../.gitbook/assets/Pasted image 20220923071642.png>)as
+![](<../.gitbook/assets/Pasted image 20220923071642.png>)
 
 ### 3.3 Enumeration with established shell
 
