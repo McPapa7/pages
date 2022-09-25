@@ -52,13 +52,13 @@ We can navigate to the website in browser either using the target IP `http://<TG
 
 Loading up the website we are shown our first flag
 
-<figure><img src="../.gitbook/assets/Pasted image 20220921072832.png" alt=""><figcaption><p>Landing page</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/Pasted image 20220921072832.png" alt=""><figcaption></figcaption></figure>
 
 From here I generally will browse the website as a user would (alongside viewing page sources and keeping our nmap scan results in mind) to get an idea of the websites functionality and purpose before using enumeration tools
 
 Following the link to the Flag 1 post there is a mention of the **author "minion"**
 
-<figure><img src="../.gitbook/assets/Pasted image 20220923070049.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/Pasted image 20220923070049 (1).png" alt=""><figcaption></figcaption></figure>
 
 There is also a comment section at the bottom of the page. I made note of this incase it could be used in the exploitation phase for possible XSS. (http://minion.thm/2022/09/18/flag1/)
 
