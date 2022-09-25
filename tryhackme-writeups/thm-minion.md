@@ -268,9 +268,9 @@ Thanks for reading my writeup of the Minion room.
 ## TLDR
 
 * Scan machine and discover website
-* Flag 1 found
+* Flag 1 found on webpage
 * Brute force login for user "minion"
-* Edit 404.php theme page to create reverse shell
+* Edit 404.php theme page (2021) to create reverse shell
 * Flag 2 found in /srv/www/wordpress
 * Switch user to minion to find flag 3
 * Switch to Gru using DB password to find flag 4
