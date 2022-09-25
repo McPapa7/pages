@@ -265,7 +265,7 @@ Thanks for reading my writeup of the Minion room.
 
 
 
-## The TLDR
+## TLDR
 
 * Scan machine and discover website
 * Flag 1 found
