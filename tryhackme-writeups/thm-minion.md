@@ -7,7 +7,7 @@ coverY: 0
 
 ## 0. Setup
 
-Add minion.thm to /etc/hosts:&#x20;
+Add minion.thm to /etc/hosts:
 
 ```bash
 sudo nano /etc/hosts
@@ -17,7 +17,7 @@ Put `<TARGETIP> minion.thm` as a new line in the file
 
 ![](<../.gitbook/assets/Pasted image 20220923065821.png>)
 
-Optional setup:&#x20;
+Optional setup:
 
 I like to save the target IP as a variable called TGT which can be used in commands and save having to type it out each time. Also makes copying commands from my notes a lot easier
 
@@ -35,28 +35,28 @@ sudo nmap -A -T4 -p- $TGT
 
 Options explained: -A runs Version detection as well as default set of scripts, -T4 is the timing template to use (0: slowest, 5: quickest), -p- scan all ports
 
-**Nmap results:**&#x20;
+**Nmap results:**
 
 <figure><img src="../.gitbook/assets/Pasted image 20220923070212.png" alt=""><figcaption><p>nmap results</p></figcaption></figure>
 
-Points of interest from nmap results:&#x20;
+Points of interest from nmap results:
 
 * Web service running on port 80: Apache 2.4.41
-* There is a robots.txt file&#x20;
-* WordPress V 6.0.2&#x20;
+* There is a robots.txt file
+* WordPress V 6.0.2
 * /wp-admin/ (WordPress admin area)
 
 ## 1.2 View website
 
 We can navigate to the website in browser either using the target IP `http://<TGTIP>` or by using the hostname we saved in /etc/hosts `http://minion.thm`
 
-Loading up the website we are shown our first flag&#x20;
+Loading up the website we are shown our first flag
 
 <figure><img src="../.gitbook/assets/Pasted image 20220921072832.png" alt=""><figcaption><p>Landing page</p></figcaption></figure>
 
 From here I generally will browse the website as a user would (alongside viewing page sources and keeping our nmap scan results in mind) to get an idea of the websites functionality and purpose before using enumeration tools
 
-Following the link to the Flag 1 post there is a mention of the **author "minion"**&#x20;
+Following the link to the Flag 1 post there is a mention of the **author "minion"**
 
 <figure><img src="../.gitbook/assets/Pasted image 20220923070049.png" alt=""><figcaption></figcaption></figure>
 
@@ -116,7 +116,7 @@ Password successfully found so we now have **valid login credentials** minion : 
 
 ### 3.1 Wordpress User Compromise
 
-Once we logon we can see that comments awaiting approval if any were made&#x20;
+Once we logon we can see that comments awaiting approval if any were made
 
 ![](<../.gitbook/assets/Pasted image 20220921133914.png>)
 
@@ -138,7 +138,7 @@ From previous experience I have known there to be .php files in the theme files 
 
 I decided to use the 404.php file as it can reliably be called upon by browsing to page that doesn't exist.
 
-I inserted the well known **PHP shell** from pentestmonkey which can be found at: [https://github.com/pentestmonkey/php-reverse-shell](https://github.com/pentestmonkey/php-reverse-shell) making sure to change the ip and port number to match my workstation and the netcat listener I set up.&#x20;
+I inserted the well known **PHP shell** from pentestmonkey which can be found at: [https://github.com/pentestmonkey/php-reverse-shell](https://github.com/pentestmonkey/php-reverse-shell) making sure to change the ip and port number to match my workstation and the netcat listener I set up.
 
 ```bash
 nc -nvlp 4444
@@ -148,7 +148,7 @@ nc -nvlp 4444
 
 ![](<../.gitbook/assets/Pasted image 20220923071319.png>)
 
-Once the PHP is pasted in and the port and IP values are set appropriately click the update file button underneath to save the changes&#x20;
+Once the PHP is pasted in and the port and IP values are set appropriately click the update file button underneath to save the changes
 
 ![](<../.gitbook/assets/Pasted image 20220923071425.png>)
 
@@ -156,7 +156,7 @@ Now that the PHP shell code exists in the TWENTY TWENTY-ONE theme it needs to be
 
 ![](<../.gitbook/assets/Pasted image 20220923071549.png>)
 
-&#x20;![](<../.gitbook/assets/Pasted image 20220923071607.png>)
+![](<../.gitbook/assets/Pasted image 20220923071607.png>)
 
 Browsing to a URL that doesn't exist (e.g http://minion.thm/NotAPagelllasdbbb) will return the desired 404 response code leading to the themes 404.php being loaded
 
@@ -166,27 +166,27 @@ If the payload is executed properly this will cause the page to "hang" as we now
 
 ### 3.3 Enumeration with established shell
 
-It is not necessary but it makes life a lot easier if you stabalise your shell. I used a common python stabalisation technique demonstrated here https://app.gitbook.com/o/g5OpHKsjXjZTLzjg45sf/s/uLKmYiecrf9qPOIjJ30V/python/readme
+It is not necessary but it makes life a lot easier if you stabalise your shell. I used a common python  technique demonstrated here: [Python Shell Stabalisation](https://app.gitbook.com/s/uLKmYiecrf9qPOIjJ30V/python/readme) which I recommend using
 
 With the web shell stabalised I started to gather information:
 
-`cat /etc/passwd`&#x20;
+`cat /etc/passwd`
 
 <figure><img src="../.gitbook/assets/Pasted image 20220923074813.png" alt=""><figcaption><p>etc/passwd</p></figcaption></figure>
 
-`ls /home`&#x20;
+`ls /home`
 
 ![](<../.gitbook/assets/Pasted image 20220923074905.png>)
 
 This shows two users of interest: **Gru** and **Minion**.
 
-Looking back at the THM room we are in search of flags so I ran a find command to check for accessible flags:&#x20;
+Looking back at the THM room we are in search of flags so I ran a find command to check for accessible flags:
 
 ```bash
 find / -type f -name "flag*" 2>/dev/null
 ```
 
-which didn't return any useful results so I used -iname to make the search **case insensitive** picking up the next challenge flag&#x20;
+which didn't return any useful results so I used -iname to make the search **case insensitive** picking up the next challenge flag
 
 ```bash
 find / -type f -iname "flag*" 2>/dev/null
@@ -215,7 +215,7 @@ Password: yellow
 
 ![](<../.gitbook/assets/Pasted image 20220923075255.png>)
 
-I checked if minion had any sudo rights but no luck here&#x20;
+I checked if minion had any sudo rights but no luck here
 
 ![](<../.gitbook/assets/Pasted image 20220923075325.png>)
 
@@ -238,15 +238,11 @@ Checking GTFO bins [https://gtfobins.github.io/gtfobins/gawk/#sudo](https://gtfo
 sudo gawk 'BEGIN {system("/bin/sh")}'
 ```
 
-![](<../.gitbook/assets/Pasted image 20220923075604.png>)&#x20;
+![](<../.gitbook/assets/Pasted image 20220923075604.png>)
 
 Now that we have a root shell we can find the rooms final flag in the /root folder.
 
-
-
 Thanks for reading my writeup of the Minion room.
-
-
 
 ## TLDR
 
