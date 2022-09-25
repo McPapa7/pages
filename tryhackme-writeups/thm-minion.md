@@ -251,7 +251,7 @@ Thanks for reading my writeup of the Minion room.
 * Brute force login for user "minion"
 * Edit 404.php theme page (2021) to create reverse shell
 * Flag 2 found in /srv/www/wordpress
-* Switch user to minion to find flag 3
+* Switch user to minion using password reuse to find flag 3
 * Switch to Gru using DB password to find flag 4
 * Elevate to root shell using sudo gawk from GTFO bins
 * Final flag in /root
