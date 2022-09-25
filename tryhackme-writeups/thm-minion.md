@@ -166,26 +166,9 @@ If the payload is executed properly this will cause the page to "hang" as we now
 
 ### 3.3 Enumeration with established shell
 
-It is not necessary but it makes life a lot easier if you stabalise your shell:
+It is not necessary but it makes life a lot easier if you stabalise your shell. I used a common python stabalisation technique demonstrated here https://app.gitbook.com/o/g5OpHKsjXjZTLzjg45sf/s/uLKmYiecrf9qPOIjJ30V/python/readme
 
-#### Stabalise the shell
-
-```bash
-python3 -c 'import pty; pty.spawn("/bin/bash")'
-export TERM=xterm
-```
-
-background the shell using `Ctrl + Z`
-
-```bash
-stty raw -echo; fg
-```
-
-This does two things: first, it turns off our own terminal echo (which gives us access to tab autocompletes, the arrow keys, and `Ctrl + C` to kill processes). It then foregrounds the shell, thus completing the process.
-
-If shell dies and cannot see typed stuff use command `reset`
-
-With the shell stabalised I started to gather information:
+With the web shell stabalised I started to gather information:
 
 `cat /etc/passwd`&#x20;
 
