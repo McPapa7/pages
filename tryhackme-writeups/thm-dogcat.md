@@ -47,7 +47,8 @@ In this case there is not much to be found through navigating or viewing the pag
 
 ### 1.3 Web Enumeration
 
-Website EnumerationTo see if there were any other useful pages I used gobuster to check for any directories as well as using `-x php` to check for php files as from the room description we know we are looking to exploit PHP.
+**Website Enumeration with gobuster**
+To see if there were any other useful pages I used gobuster to check for any directories as well as using `-x php` to check for php files as from the room description we know we are looking to exploit PHP.
 
 ```bash
 gobuster dir -u http://$TGT -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt  -x php
