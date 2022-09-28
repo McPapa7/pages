@@ -25,7 +25,7 @@ sudo nmap -sV -T4 -p- $TGT
 
 Options explained: -sV runs version detection, -T4 is the timing template to use (0: slowest, 5: quickest), -p- scan all ports
 
-**nmap results:**
+**nmap results:** \
 <figure><img src="../.gitbook/assets/nmapresult.PNG" alt=""><figcaption></figcaption></figure>
 
 Points of interest from nmap results:\
