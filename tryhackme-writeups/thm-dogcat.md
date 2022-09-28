@@ -25,7 +25,7 @@ sudo nmap -sV -T4 -p- $TGT
 
 Options explained: -sV runs version detection, -T4 is the timing template to use (0: slowest, 5: quickest), -p- scan all ports
 
-**nmap results:**\
+**nmap results:**
 <figure><img src="../.gitbook/assets/nmapresult.PNG" alt=""><figcaption></figcaption></figure>
 
 Points of interest from nmap results:\
@@ -153,8 +153,7 @@ Set up listener on our machine for the shell to establish a connection with:
 nc -nvlp 4444
 ```
 
-**Create shell code**&#x20;
-
+**Create shell code**\
 I used the well known **PHP shell** from pentestmonkey which can be found at: [https://github.com/pentestmonkey/php-reverse-shell](https://github.com/pentestmonkey/php-reverse-shell) making sure to change the IP to match my workstation IP and the port number to that in the netcat listener I set up above.
 
 ![](../.gitbook/assets/monkeySHell.PNG)
