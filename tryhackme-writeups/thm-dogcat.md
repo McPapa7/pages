@@ -39,16 +39,15 @@ We can navigate to the website in browser using the target IP `http://<TGTIP>`
 
 ![](../.gitbook/assets/webpageBlank.PNG)
 
-From here I generally will browse the website as a user would (alongside viewing page sources) to get an idea of the websites functionality and purpose before using enumeration tools.
+From here I generally browse the website as a user would do (alongside viewing page sources) to get an idea of the websites functionality and purpose before using enumeration tools.
 
-In this case there is not much to be found through navigating or viewing the page source. Clicking either dog or cat shows an image but a point to note is in the URL where the view paramater is set to either dog or cat. As the room describes using LFI (Local File Inclusion) this parameter may be of use to us.
+In this case there is not much to be found through navigating or viewing the page source. Clicking either dog or cat shows an image but a point to note is in the URL where the '**view**' parameter is set to either dog or cat. As the room describes using LFI (Local File Inclusion) this parameter may be of use to us.
 
 <figure><img src="../.gitbook/assets/webpageDog.PNG" alt=""><figcaption></figcaption></figure>
 
 ### 1.3 Web Enumeration
 
-**Directory enumeration (and by extension)**\
-To see if there were any other useful pages I used gobuster to check for any directories as well as using `-x php` to check for php files as from the room description we know we are looking to exploit PHP.
+Website EnumerationTo see if there were any other useful pages I used gobuster to check for any directories as well as using `-x php` to check for php files as from the room description we know we are looking to exploit PHP.
 
 ```bash
 gobuster dir -u http://$TGT -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt  -x php
