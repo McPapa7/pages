@@ -4,4 +4,5 @@
 
 ## TryHackMe Writeups
 
+* [THM - Dogcat](tryhackme-writeups/thm-dogcat.md)
 * [THM - Minion](tryhackme-writeups/thm-minion.md)
