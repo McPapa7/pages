@@ -25,8 +25,7 @@ sudo nmap -sV -T4 -p- $TGT
 
 Options explained: -sV runs version detection, -T4 is the timing template to use (0: slowest, 5: quickest), -p- scan all ports
 
-**nmap results:**
-
+**nmap results:**\
 <figure><img src="../.gitbook/assets/nmapresult.PNG" alt=""><figcaption></figcaption></figure>
 
 Points of interest from nmap results:\
@@ -47,8 +46,7 @@ In this case there is not much to be found through navigating or viewing the pag
 
 ### 1.3 Web Enumeration
 
-**Website Enumeration with gobuster**&#x20;
-
+**Website Enumeration with gobuster**\
 To see if there were any other useful pages I used gobuster to check for any directories as well as using `-x php` to check for php files as from the room description we know we are looking to exploit PHP.
 
 ```bash
@@ -119,15 +117,13 @@ but this didn't turn out to be useful in my progression through the room.
 
 Now that we know how to read files on the target system we can look to view access logs which will record requests we make to the web server. From our nmap scan we know we are dealing with an Apache server V 2.4.38. You may know the log file location of from previous experience but if not a google search can provide you with the results which is what I had to do and found the answer [here](https://phoenixnap.com/kb/apache-access-log).
 
-**Viewing log file**&#x20;
-
+**Viewing log file**\
 Using LFI directory traversal and keeping the ext parameter blank\
 **/?view=./dog/../../../../../../../var/log/apache2/access.log\&ext=**
 
 ![](../.gitbook/assets/logFileFirst.PNG)
 
-**Using curl to poison the log**
-
+**Using curl to poison the log**\
 As all of our requests are captured in the log file we can look to exploit this by injecting our own PHP code into the log file via a request. [This resource from sushant747](https://sushant747.gitbooks.io/total-oscp-guide/content/webshell.html) gives several ways to inject PHP code into pages. Choosing one we can make a request to the site using curl:
 
 ```bash
@@ -163,8 +159,7 @@ I used the well known **PHP shell** from pentestmonkey which can be found at: [h
 
 ![](../.gitbook/assets/monkeySHell.PNG)
 
-**Get the shell onto the target**&#x20;
-
+**Get the shell onto the target**\
 Host a python web server for target to download our reverse shell from. Ensure this is either in the same folder as the reverse shell or adjust the curl command ahead in order to reach the correct directory.
 
 ```bash
@@ -187,8 +182,7 @@ Our python server lets us know when our target machine has downloaded our shell 
 
 <figure><img src="../.gitbook/assets/webdownlaod.PNG" alt=""><figcaption></figcaption></figure>
 
-**Execute the shell script**
-
+**Execute the shell script**\
 In order to get our shell.php to execute we remember back to using LFI to read index.php, so we use the following (remember by default .php will be added)\
 **http://10.10.150.242/?view=./dog/../shell**
 
