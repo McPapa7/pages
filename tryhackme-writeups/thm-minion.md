@@ -7,6 +7,8 @@ coverY: 0
 
 ## 0. Setup
 
+[Link to room](https://tryhackme.com/room/minion)
+
 Add minion.thm to /etc/hosts:
 
 ```bash
