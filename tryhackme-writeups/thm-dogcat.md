@@ -61,7 +61,7 @@ gobuster dir -u http://$TGT -w /usr/share/seclists/Discovery/Web-Content/directo
 **Points of interest from scan:**\
 index.php - If we can view this it will show us how the web page we have already seen works\
 flag.php - This room wants us to get the contents of these files\
-dogs/cats directory - Status code 301 means we do not have access
+dogs/cats directory
 
 ## 2. Exploitation
 
