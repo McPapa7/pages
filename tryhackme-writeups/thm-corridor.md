@@ -15,7 +15,7 @@ In this challenge, you will explore potential IDOR vulnerabilities. Examine the 
 
 **Room Tasks & Objectives**\
 Use IDOR to reach a flag.\
-If you are unfamiliar with IDOR I recommend reading though [this post on infosecwriteups](https://infosecwriteups.com/what-is-idor-vulnerability-and-how-does-it-affect-you-85431d10f8fb)
+If you are unfamiliar with IDOR I recommend reading through [this post on infosecwriteups](https://infosecwriteups.com/what-is-idor-vulnerability-and-how-does-it-affect-you-85431d10f8fb)
 
 **Optional setup:**\
 I like to save the target IP as a variable called TGT which can be used in commands and save having to type it out each time. Also makes copying commands from my notes a lot easier
@@ -45,7 +45,7 @@ We can navigate to the website in browser using the target IP `http://<TGTIP>`
 
 From here I generally browse the website as a user would do (alongside viewing page sources) to get an idea of the websites functionality and purpose before using enumeration tools.
 
-![](<../.gitbook/assets/main page black.png>)
+![](<../.gitbook/assets/main page black (1).png>)
 
 We are presented with an image of a room with doors that we can click on to take us to another page showing us an image "/static/img/empty\_room.jpg"
 
