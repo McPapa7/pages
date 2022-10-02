@@ -122,7 +122,8 @@ We can check it ran correctly comparing our first hashList.txt result for 13 to 
 
 ![](<../.gitbook/assets/python check.PNG>)
 
-**Use wfuzz to check for a new page** Similar to how wfuzz was used earlier the following command uses our "hashList.txt" file
+**Use wfuzz to check for a new page**\
+Similar to how wfuzz was used earlier the following command uses our "hashList.txt" file
 
 ```bash
 wfuzz -w hashList.txt http://$TGT/FUZZ
@@ -132,7 +133,7 @@ wfuzz -w hashList.txt http://$TGT/FUZZ
 
 All our new MD5 hashes result in a 404 (page not found) response. So no luck here. I could try increase the range of MD5 hashes but first I thought I would try go negative (and zero)
 
-**Trying a different number range**\\
+**Trying a different number range**\
 
 Strictly one line needs to change from the last script:
 
