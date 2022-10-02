@@ -1,8 +1,13 @@
+---
+cover: ../.gitbook/assets/Corridor cover.PNG
+coverY: 0
+---
+
 # THM - Corridor
 
 ## 0. Setup
 
-Room link: https://tryhackme.com/room/corridor
+Room link: [https://tryhackme.com/room/corridor](https://tryhackme.com/room/corridor)
 
 **Read the room description**\
 You have found yourself in a strange corridor. Can you find your way back to where you came?\
@@ -10,12 +15,12 @@ In this challenge, you will explore potential IDOR vulnerabilities. Examine the 
 
 **Room Tasks & Objectives**\
 Use IDOR to reach a flag.\
-If you are unfamiliar with IDOR I recommend reading though [this post on inforsecwriteups](https://infosecwriteups.com/what-is-idor-vulnerability-and-how-does-it-affect-you-85431d10f8fb)
+If you are unfamiliar with IDOR I recommend reading though [this post on infosecwriteups](https://infosecwriteups.com/what-is-idor-vulnerability-and-how-does-it-affect-you-85431d10f8fb)
 
 **Optional setup:**\
 I like to save the target IP as a variable called TGT which can be used in commands and save having to type it out each time. Also makes copying commands from my notes a lot easier
 
-IAMGE TGT IP IMAGE
+![](<../.gitbook/assets/echo target.PNG>)
 
 ## 1. Recon & Enumeration
 
@@ -29,7 +34,9 @@ Options explained: -sV runs version detection, -T4 is the timing template to use
 
 **nmap results:**
 
-IMAGE NMAP
+<figure><img src="../.gitbook/assets/namap results.PNG" alt=""><figcaption></figcaption></figure>
+
+
 
 ### 1.2 View Website
 
