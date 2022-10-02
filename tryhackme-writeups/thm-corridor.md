@@ -36,7 +36,7 @@ Options explained: -sV runs version detection, -T4 is the timing template to use
 
 <figure><img src="../.gitbook/assets/namap results.PNG" alt=""><figcaption></figcaption></figure>
 
-Points of interest from nmap results:
+Points of interest from nmap results:\
 - Port 80 open hosting [Werkzeug](https://pypi.org/project/Werkzeug/)
 
 ### 1.2 View Website
