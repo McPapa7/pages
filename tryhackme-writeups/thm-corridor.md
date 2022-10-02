@@ -37,35 +37,33 @@ Options explained: -sV runs version detection, -T4 is the timing template to use
 <figure><img src="../.gitbook/assets/namap results.PNG" alt=""><figcaption></figcaption></figure>
 
 Points of interest from nmap results:\
-	\- Port 80 open hosting [Werkzeug](https://pypi.org/project/Werkzeug/)
+\- Port 80 open hosting [Werkzeug](https://pypi.org/project/Werkzeug/)
 
 ### 1.2 View Website
 
 We can navigate to the website in browser using the target IP `http://<TGTIP>`
 
-IMAGE WEBSITE MAIN
-
 From here I generally browse the website as a user would do (alongside viewing page sources) to get an idea of the websites functionality and purpose before using enumeration tools.
 
-IMAGE MAIN PAGE
+![](<../.gitbook/assets/main page black.png>)
 
 We are presented with an image of a room with doors that we can click on to take us to another page showing us an image "/static/img/empty\_room.jpg"
 
-IMAGE EMPTY ROOM
+![](../.gitbook/assets/empty\_room.jpg)
 
 **Main page source**\
 As the image takes up the whole screen it's hard to use the usual method to view source with right click -> view source. Instead you can either use `Ctrl + U` or type into the address bar `view-source:http://<TGTIP>`. Note I have only tried this on Windows with Chrome and Firefox.
 
 From viewing the main page source we can see (with the help of the hint "they look an awful lot like a _hash_, don't they?") we have a list of hashes in the link references. These references are used with the doors on the main page.
 
-IMAGE page source
+<figure><img src="../.gitbook/assets/Main page source.PNG" alt=""><figcaption></figcaption></figure>
 
-IMAGE DOOR LINK
+![](<../.gitbook/assets/door links.png>)
 
 **Do all the links take us to the same empty room?**\
 There are only 13 links to check which wouldn't take to long manually but instead I gathered the unique part of each link and put them in a document "hashes.txt"
 
-IMAGE HASHES.TXT
+![](../.gitbook/assets/hashesTXT.PNG)
 
 Then I used [Wfuzz](https://wfuzz.readthedocs.io/en/latest/) to see if any of the rooms were unique
 
@@ -73,13 +71,13 @@ Then I used [Wfuzz](https://wfuzz.readthedocs.io/en/latest/) to see if any of th
 wfuzz -z hashes.txt http://$TGT/FUZZ
 ```
 
-IMAGE WFUZZ LINKS
+<figure><img src="../.gitbook/assets/wfuzz links.PNG" alt=""><figcaption></figcaption></figure>
 
 So all doors take us to the same empty room
 
 Putting one of the examples (I chose "c4ca4238a0b923820dcc509a6f75849b") into a hash identifier like https://hashes.com/en/tools/hash\_identifier it tells us we possibly are looking at an MD5 hash.
 
-IMAGE ID SITE
+<figure><img src="../.gitbook/assets/hash identifier.PNG" alt=""><figcaption></figcaption></figure>
 
 **Crack the hashes with hashcat**\
 Using my document "hashes.txt" I made earlier and used hashcat to crack them using the [rockyou word list](https://www.kali.org/tools/wordlists/)
@@ -88,7 +86,7 @@ Using my document "hashes.txt" I made earlier and used hashcat to crack them usi
 hashcat -m 0 hashes.txt /usr/share/wordlists/rockyou.txt 
 ```
 
-IMAGE RESULTS HASHCAT
+<figure><img src="../.gitbook/assets/hashcat.PNG" alt=""><figcaption></figcaption></figure>
 
 So it appears that the links on the webpage are just MD5 hashes of the numbers 1 - 13.
 
@@ -122,7 +120,7 @@ with open('hashList.txt', 'w') as f:
 
 We can check it ran correctly comparing our first MD5 result for 13 to our legitimate links list and also using wordcount to make sure we have the number of expected results
 
-IMAGE PYTHON CHECK
+![](<../.gitbook/assets/python check.PNG>)
 
 **Use wfuzz to check for a new page** Similar to how wfuzz was used earlier I used the following command which uses our now created "hashList.txt" file
 
@@ -130,7 +128,7 @@ IMAGE PYTHON CHECK
 wfuzz -w hashList.txt http://$TGT/FUZZ
 ```
 
-IMAGE WFUZZ POSITIVE
+<figure><img src="../.gitbook/assets/wfuzz pos.PNG" alt=""><figcaption></figcaption></figure>
 
 All our new MD5 hashes result in a 404 (page not found) response. So no luck here. I could try increase the range of MD5 hashes but first I thought I would try go negative (and zero)
 
@@ -156,13 +154,13 @@ Putting this into the wfuzz command again:
 wfuzz -w hashListNeg.txt http://$TGT/FUZZ 
 ```
 
-IMAGE WFUZZ NEG
+<figure><img src="../.gitbook/assets/wfuzz neg.PNG" alt=""><figcaption></figcaption></figure>
 
 We get a single valid response for the MD5 hash of 0. In hindsight I could easily have tried this manually without the python script!
 
-Browsing to this new page we are shown the flag calue for the room
+Browsing to this new page we are shown the flag value for the room
 
-IMAGE FLAG
+<figure><img src="../.gitbook/assets/flag.PNG" alt=""><figcaption></figcaption></figure>
 
 Thanks for reading my writeup of the Corridor room.
 
