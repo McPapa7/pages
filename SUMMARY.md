@@ -6,3 +6,4 @@
 
 * [THM - Dogcat](tryhackme-writeups/thm-dogcat.md)
 * [THM - Minion](tryhackme-writeups/thm-minion.md)
+* [THM - Corridor](tryhackme-writeups/thm-corridor.md)
