@@ -15,7 +15,7 @@ In this challenge, you will explore potential IDOR vulnerabilities. Examine the 
 
 **Room Tasks & Objectives**\
 Use IDOR to reach a flag.\
-If you are unfamiliar with IDOR I recommend reading through [this post on infosecwriteups](https://infosecwriteups.com/what-is-idor-vulnerability-and-how-does-it-affect-you-85431d10f8fb)
+(If you are unfamiliar with IDOR I recommend reading through [this post on infosecwriteups](https://infosecwriteups.com/what-is-idor-vulnerability-and-how-does-it-affect-you-85431d10f8fb))
 
 **Optional setup:**\
 I like to save the target IP as a variable called TGT which can be used in commands and save having to type it out each time. Also makes copying commands from my notes a lot easier
@@ -52,13 +52,13 @@ We are presented with an image of a room with doors that we can click on to take
 ![](../.gitbook/assets/empty\_room.jpg)
 
 **Main page source**\
-As the image takes up the whole screen it's hard to use the usual method to view source with right click -> view source. Instead you can either use `Ctrl + U` or type into the address bar `view-source:http://<TGTIP>`. Note I have only tried this on Windows with Chrome and Firefox.
-
-From viewing the main page source we can see (with the help of the hint "they look an awful lot like a _hash_, don't they?") we have a list of hashes in the link references. These references are used with the doors on the main page.
+As the image takes up the whole browser window it's hard to use the usual method I use to view source with right click -> view source. Instead you can either use `Ctrl + U` or type into the address bar `view-source:http://<TGTIP>`. Note: I have only tried this on Windows with Chrome and Firefox.
 
 <figure><img src="../.gitbook/assets/Main page source.PNG" alt=""><figcaption></figcaption></figure>
 
-![](<../.gitbook/assets/door links.png>)
+From viewing the main page source we can see, with the help of the room description "they look an awful lot like a _hash_" we have a list of hashes in the link references. These references are used with the doors on the main page.
+
+<figure><img src="../.gitbook/assets/door links.png" alt=""><figcaption></figcaption></figure>
 
 **Do all the links take us to the same empty room?**\
 There are only 13 links to check which wouldn't take to long manually but instead I gathered the unique part of each link and put them in a document "hashes.txt"
@@ -73,14 +73,14 @@ wfuzz -z hashes.txt http://$TGT/FUZZ
 
 <figure><img src="../.gitbook/assets/wfuzz links.PNG" alt=""><figcaption></figcaption></figure>
 
-So all doors take us to the same empty room
+So all doors take us to the same empty room we looked at earlier.
 
-Putting one of the examples (I chose "c4ca4238a0b923820dcc509a6f75849b") into a hash identifier like https://hashes.com/en/tools/hash\_identifier it tells us we possibly are looking at an MD5 hash.
+Putting one of the examples (I chose "c4ca4238a0b923820dcc509a6f75849b") into a hash identifier like [https://hashes.com/en/tools/hash\_identifier](https://hashes.com/en/tools/hash\_identifier) it tells us we possibly are looking at an MD5 hash.
 
 <figure><img src="../.gitbook/assets/hash identifier.PNG" alt=""><figcaption></figcaption></figure>
 
 **Crack the hashes with hashcat**\
-Using my document "hashes.txt" I made earlier and used hashcat to crack them using the [rockyou word list](https://www.kali.org/tools/wordlists/)
+Using my document "hashes.txt" I made earlier I used hashcat to crack them using the [rockyou word list](https://www.kali.org/tools/wordlists/)
 
 ```
 hashcat -m 0 hashes.txt /usr/share/wordlists/rockyou.txt 
@@ -88,13 +88,13 @@ hashcat -m 0 hashes.txt /usr/share/wordlists/rockyou.txt
 
 <figure><img src="../.gitbook/assets/hashcat.PNG" alt=""><figcaption></figcaption></figure>
 
-So it appears that the links on the webpage are just MD5 hashes of the numbers 1 - 13.
+So it appears that the links on the web page are just MD5 hashes of the numbers 1 - 13.
 
 ## 2. Exploitation
 
-Looking to exploit the rooms following the pattern on MD5 hashed numbers we can try different numbers and see if that takes us anywhere else on the website.
+Looking to exploit the the pattern used by the room links we can try different numbers and see if that takes us anywhere else on the website.
 
-My initial thought was to try the numbers 13 (13 is a legitimate link we can use as a reference later) up to 100. This was a two step process for me:
+My initial thought was to try the numbers 13 - 100 (13 being a working link we can use as a reference later). This was a two step process for me:
 
 * Get a list of the MD5 hashes of numbers 13 to 100
 * Use this list to check for access to a new page
@@ -105,7 +105,7 @@ I used the Python script below to create a file "hashList.txt" containing our MD
 ```python
 import hashlib #Used for creating MD5 hash
 
-hash_list=[] #This will hold the hashes until we send them to our file
+hash_list=[] #This will hold the hashes until we output them to a file
 
 #For each number i get the MD5 hash and append it to hash_list
 for i in range(13,101):
@@ -118,11 +118,11 @@ with open('hashList.txt', 'w') as f:
         f.write(f"{line}\n")
 ```
 
-We can check it ran correctly comparing our first MD5 result for 13 to our legitimate links list and also using wordcount to make sure we have the number of expected results
+We can check it ran correctly comparing our first hashList.txt result for 13 to our legitimate links list, as well as using [wordcount](https://linux.die.net/man/1/wc) to make sure we have the number of expected results
 
 ![](<../.gitbook/assets/python check.PNG>)
 
-**Use wfuzz to check for a new page** Similar to how wfuzz was used earlier I used the following command which uses our now created "hashList.txt" file
+**Use wfuzz to check for a new page** Similar to how wfuzz was used earlier the following command uses our "hashList.txt" file
 
 ```bash
 wfuzz -w hashList.txt http://$TGT/FUZZ
@@ -154,9 +154,9 @@ Putting this into the wfuzz command again:
 wfuzz -w hashListNeg.txt http://$TGT/FUZZ 
 ```
 
-<figure><img src="../.gitbook/assets/wfuzz neg.PNG" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/wfuzz neg (1).PNG" alt=""><figcaption></figcaption></figure>
 
-We get a single valid response for the MD5 hash of 0. In hindsight I could easily have tried this manually without the python script!
+**SUCCESS!** We get a single valid response for the MD5 hash of 0. In hindsight I could easily have tried this manually without the python script!
 
 Browsing to this new page we are shown the flag value for the room
 
