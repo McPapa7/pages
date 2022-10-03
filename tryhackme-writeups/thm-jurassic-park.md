@@ -15,10 +15,10 @@ Link to room [https://tryhackme.com/room/jurassicpark](https://tryhackme.com/roo
 * find 5 flags
 
 **Room objectives:**\
-* Get SQL database information
-* Get system version
-* Get Dennis' password
-* Locate flags on the system
+- Get SQL database information
+- Get system version
+- Get Dennis' password
+- Locate flags on the system
 
 ## 1. Recon and enumeration
 
