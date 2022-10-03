@@ -10,15 +10,15 @@ coverY: 0
 Link to room [https://tryhackme.com/room/jurassicpark](https://tryhackme.com/room/jurassicpark)
 
 **Read the Room Description:**\
-1 enumerate the web application
-2 get credentials to the server
-3 find 5 flags
+\- enumerate the web application
+\- get credentials to the server
+\- find 5 flags
 
 **Room objectives:**\
-- Get SQL database information
-- Get system version
-- Get Dennis' password
-- Locate flags on the system
+\- Get SQL database information
+\- Get system version
+\- Get Dennis' password
+\- Locate flags on the system
 
 ## 1. Recon and enumeration
 
