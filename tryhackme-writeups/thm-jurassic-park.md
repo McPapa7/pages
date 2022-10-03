@@ -14,7 +14,7 @@ Link to room [https://tryhackme.com/room/jurassicpark](https://tryhackme.com/roo
 * get credentials to the server
 * find 5 flags
 
-**Room objectives**\
+**Room objectives:**\
 * Get SQL database information
 * Get system version
 * Get Dennis' password
