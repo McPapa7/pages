@@ -21,6 +21,8 @@ I like to save the target IP as a variable called TGT which can be used in comma
 
 ### 1.1 nmap
 
+Use the nmap tool to begin building up a picture of what is running on the machine: Note: $TGT is the target machine IP as described in the setup section
+
 ```bash
 sudo nmap -sV -T4 -p- $TGT
 ```
