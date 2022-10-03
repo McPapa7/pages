@@ -10,9 +10,9 @@ coverY: 0
 Link to room [https://tryhackme.com/room/jurassicpark](https://tryhackme.com/room/jurassicpark)
 
 **Read the Room Description:**\
-* enumerate the web application
-* get credentials to the server
-* find 5 flags
+1 enumerate the web application
+2 get credentials to the server
+3 find 5 flags
 
 **Room objectives:**\
 - Get SQL database information
