@@ -5,9 +5,9 @@ coverY: 0
 
 # THM -Jurassic Park
 
-## 0 Setup
+## 0. Setup
 
-Link to room https://tryhackme.com/room/jurassicpark
+Link to room [https://tryhackme.com/room/jurassicpark](https://tryhackme.com/room/jurassicpark)
 
 **Read the Room Description:**\\
 
