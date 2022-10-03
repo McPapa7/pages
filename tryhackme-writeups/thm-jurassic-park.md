@@ -9,14 +9,12 @@ coverY: 0
 
 Link to room [https://tryhackme.com/room/jurassicpark](https://tryhackme.com/room/jurassicpark)
 
-**Read the Room Description:**\\
-
+**Read the Room Description:**\
 * enumerate the web application
 * get credentials to the server
 * find 5 flags
 
-**Room objectives**
-
+**Room objectives**\
 * Get SQL database information
 * Get system version
 * Get Dennis' password
