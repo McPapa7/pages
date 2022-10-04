@@ -36,12 +36,11 @@ Options explained: -sV runs version detection, -T4 is the timing template to use
 
 ### 1.2 View Website
 
-We can navigate to the website in browser using the target IP `http://<TGTIP>`&#x20;
+We can navigate to the website in browser using the target IP `http://<TGTIP>`
 
 ![](<../.gitbook/assets/website blank.PNG>)
 
-From here I generally browse the website as a user would do (alongside viewing page sources) to get an idea of the websites functionality and purpose before using enumeration tools.
-The main page does not offer much but directs us to an online shop that has 3 products that we can navigate to.&#x20;
+From here I generally browse the website as a user would do (alongside viewing page sources) to get an idea of the websites functionality and purpose before using enumeration tools. The main page does not offer much but directs us to an online shop that has 3 products that we can navigate to.
 
 ![](<../.gitbook/assets/webpage shop.PNG>)
 
@@ -95,12 +94,12 @@ You may have your own resources to perform SQL injection but I found these very 
 * [Perspective Risk SQLi cheat sheet](https://perspectiverisk.com/mysql-sql-injection-practical-cheat-sheet/)
 
 **Method:**\
-\- Check we can inject commands by getting an SQL error message
-\- Find the number of columns needed to create a valid request
-\- Enumerate the database from top level downwards to find a password
+\- Check we can inject commands by getting an SQL error message - Find the number of columns needed to create a valid request - Enumerate the database from top level downwards to find a password
 
 **Getting and SQL error message**\
-If we can get an error in the SQL syntax it can reveal information about the database. We know from our enumeration the the `#` comment character is blocked so I tried `\*` and recieved an error. IMAGE SQLI ERROR
+If we can get an error in the SQL syntax it can reveal information about the database. We know from our enumeration the the `#` comment character is blocked so I tried `\*` and recieved an error.&#x20;
+
+<figure><img src="../.gitbook/assets/sqli error.PNG" alt=""><figcaption></figcaption></figure>
 
 Now we have identified an area to perform an SQL injection attack and also found out that a MySQL server is running.
 
@@ -108,27 +107,27 @@ At this point I tried to use sqlmap to automate the injection but was not succes
 
 **Finding the number of columns in to use**\
 We can find number of columns required by increasing the number of NULLs we use after the id value:
-  * /item.php?id=100 UNION SELECT NULL
-  * This returns a message `The used SELECT statements have a different number of columns`
-IMAGE SQLI COLUMN ENUM
-  * So we continue to add another NULL in the following request until we find a successful request using 5 NULL values - /item.php?id=100 UNION SELECT NULL, NULL, NULL, NULL, NULL
+
+* /item.php?id=100 UNION SELECT NULL
+* This returns a message `The used SELECT statements have a different number of columns`&#x20;
+
+<figure><img src="../.gitbook/assets/sqli column enum.PNG" alt=""><figcaption></figcaption></figure>
+
+* So we continue to add another NULL in the following request until we find a successful request using 5 NULL values - /item.php?id=100 UNION SELECT NULL, NULL, NULL, NULL, NULL
 
 ### SQL Database Enumeration
 
 Now that we have a vaild request we can start using our NULL columns to get information from the database. In order to get to the information we want (eventually Dennis' password) I tried to follow a logical path in my injection - Find version - Find database name - Find a table that is likely to hold Dennis' password - Find the password Resources I used to conduct my SQLi: -
 
 **Get version using version()**\
-\- /item.php?id=100 UNION SELECT VERSION(), NULL, NULL, NULL, NULL
-\- This didn't show anything to show on the page so I put the tried it in all columns
-\- /item.php?id=100 UNION SELECT VERSION(), VERSION(), VERSION(), VERSION(), VERSION()
+\- /item.php?id=100 UNION SELECT VERSION(), NULL, NULL, NULL, NULL - This didn't show anything to show on the page so I put the tried it in all columns - /item.php?id=100 UNION SELECT VERSION(), VERSION(), VERSION(), VERSION(), VERSION()
 
 ![](<../.gitbook/assets/sqli version.PNG>)
 
 Testing the column usage I settled on using the fourth parameter going forward as it wasn't displayed with other text from the web page.
 
 **Get database name using database() function**\
-\- /item.php?id=100 UNION SELECT NULL, NULL, NULL, DATABASE(), NULL
-\- Shows up at x package = park package
+\- /item.php?id=100 UNION SELECT NULL, NULL, NULL, DATABASE(), NULL - Shows up at x package = park package
 
 **Get tables from park database**\
 The SQL command we are looking to perform is:
@@ -179,11 +178,11 @@ However, we know from our enumeration that "username" is not allowed. My first t
 
 This returns only two unique passwords:
 
-![](<../.gitbook/assets/sqli 2 passwords.PNG>)
+<figure><img src="../.gitbook/assets/sqli 2 passwords.PNG" alt=""><figcaption></figcaption></figure>
 
 ## 3. Post Compromise Enumeration
 
-Now that we have two passwords we can try to logon to the system using SSH and the username dennis. I tried the first password and successfully logged in where we find the first flag
+Now that we have two passwords we can try to logon to the system using SSH and the username Dennis. I tried the first password and successfully logged in where we find the first flag
 
 <figure><img src="../.gitbook/assets/ssh flag 1.PNG" alt=""><figcaption></figcaption></figure>
 
@@ -201,7 +200,7 @@ I ran `sudo -l` to check if Dennis could run any commands as root where we find 
 
 <figure><img src="../.gitbook/assets/priv esc sudo.PNG" alt=""><figcaption></figcaption></figure>
 
-Looking this up on [GTFO bins](https://gtfobins.github.io/gtfobins/scp/#sudo) we can use the following to get a root shell&#x20;
+Looking this up on [GTFO bins](https://gtfobins.github.io/gtfobins/scp/#sudo) we can use the following to get a root shell
 
 ```bash
 TF=$(mktemp)

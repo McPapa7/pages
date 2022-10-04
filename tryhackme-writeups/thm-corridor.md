@@ -45,7 +45,7 @@ We can navigate to the website in browser using the target IP `http://<TGTIP>`
 
 From here I generally browse the website as a user would do (alongside viewing page sources) to get an idea of the websites functionality and purpose before using enumeration tools.
 
-![](<../.gitbook/assets/main page black.png>)
+![](<../.gitbook/assets/main page black (1).png>)
 
 We are presented with an image of a room with doors that we can click on to take us to another page showing us an image "/static/img/empty\_room.jpg"
 
